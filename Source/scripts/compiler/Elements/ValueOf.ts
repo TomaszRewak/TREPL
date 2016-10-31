@@ -9,11 +9,11 @@
             this.cs = this.log_value.compile(environment) && this.cs;
             if (!this.cs) return false;
 
-            this.errorIfNot(this.log_value.returns.varType instanceof TS.ReferenceClassType, 'Expected reference', this.log_value);
+            this.errorIfNot(this.log_value.returns.varType instanceof TS.ReferenceType, 'Expected reference', this.log_value);
             if (!this.cs) return false;
 
-            var reference = <TS.ReferenceClassType> this.log_value.returns.varType;
-            this.returns = new TS.RValueOfType(reference.referencedPrototypeType);
+            var reference = <TS.ReferenceType>this.log_value.returns.varType;
+            this.returns = new TS.LValueOfType(reference.prototypeType.referencedPrototypeType.declaresType());
 
             return this.cs;
         }

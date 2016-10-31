@@ -121,6 +121,12 @@
             'Reference of',
             'Returns a new reference to the provided object.'),
         new Helper(
+            'val of',
+            new E.ValueOf,
+            Serializer.deserialize({ "element": "Program", "params": [[{ "element": "VariableImplicitDefinition", "params": ["a", { "element": "RawData", "params": ["1"], "visible": true }], "visible": true }, { "element": "ReferenceDefinition", "params": ["b", { "element": "Int", "params": [], "visible": true }, { "element": "ReferenceOf", "params": [{ "element": "RawData", "params": ["a"], "visible": true }], "visible": true }], "visible": true }, { "element": "VariableDefinition", "params": ["c", { "element": "Ref", "params": [{ "element": "Ref", "params": [{ "element": "Int", "params": [], "visible": true }], "visible": true }], "visible": true }, { "element": "ReferenceOf", "params": [{ "element": "RawData", "params": ["b"], "visible": true }], "visible": true }], "visible": true }, { "element": "Set", "params": [{ "element": "ValueOf", "params": [{ "element": "ValueOf", "params": [{ "element": "RawData", "params": ["c"], "visible": true }], "visible": true }], "visible": true }, { "element": "RawData", "params": ["9"], "visible": true }], "visible": true }, { "element": "VariableImplicitDefinition", "params": ["d", { "element": "ValueOf", "params": [{ "element": "RawData", "params": ["b"], "visible": true }], "visible": true }], "visible": true }]], "visible": true }),
+            'Value of',
+            'Returns a value referenced by a reference.'),
+        new Helper(
             'default value',
             new E.DefaultValue,
             Serializer.deserialize({ "element": "Program", "params": [[{ "element": "VariableDefinition", "params": ["foo", { "element": "Int", "params": [], "visible": true }, { "element": "DefaultValue", "params": [{ "element": "Int", "params": [], "visible": true }], "visible": true }], "visible": true }]], "visible": true }),

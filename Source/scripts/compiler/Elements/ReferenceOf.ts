@@ -45,7 +45,7 @@ module E {
         constructor(
             object: E.Element = null) {
             super();
-            this.c_object = new C.DropField(this)
+            this.c_object = new C.DropField(this, object)
             this.initialize([
                 [
                     new C.Label('ref of'),

@@ -3338,7 +3338,7 @@ var E;
     class ReferenceOf extends E.Element {
         constructor(object = null) {
             super();
-            this.c_object = new C.DropField(this);
+            this.c_object = new C.DropField(this, object);
             this.initialize([
                 [
                     new C.Label('ref of'),
@@ -3722,11 +3722,11 @@ var L;
             this.cs = this.log_value.compile(environment) && this.cs;
             if (!this.cs)
                 return false;
-            this.errorIfNot(this.log_value.returns.varType instanceof TS.ReferenceClassType, 'Expected reference', this.log_value);
+            this.errorIfNot(this.log_value.returns.varType instanceof TS.ReferenceType, 'Expected reference', this.log_value);
             if (!this.cs)
                 return false;
             var reference = this.log_value.returns.varType;
-            this.returns = new TS.RValueOfType(reference.referencedPrototypeType);
+            this.returns = new TS.LValueOfType(reference.prototypeType.referencedPrototypeType.declaresType());
             return this.cs;
         }
         *execute(environment) {
@@ -6891,6 +6891,7 @@ var MenuInflater;
         new Helper('new', new E.NewHeapObject, Serializer.deserialize({ "element": "Program", "params": [[{ "element": "BaseClassDefinition", "params": ["Class", [{ "element": "VariableDeclaration", "params": ["a", { "element": "Int", "params": [], "visible": true }], "visible": true }, { "element": "VariableDeclaration", "params": ["b", { "element": "Int", "params": [], "visible": true }], "visible": true }]], "visible": true }, { "element": "ReferenceDefinition", "params": ["foo", { "element": "RawData", "params": ["Class"], "visible": true }, { "element": "NewHeapObject", "params": [{ "element": "RawData", "params": ["Class"], "visible": true }, []], "visible": true }], "visible": true }]], "visible": true }), 'New heap object', 'Creates a new object of provided type and places it on the heap.'),
         new Helper('new []', new E.NewArray, Serializer.deserialize({ "element": "Program", "params": [[{ "element": "VariableImplicitDefinition", "params": ["foo", { "element": "NewArray", "params": [{ "element": "Int", "params": [], "visible": true }, { "element": "RawData", "params": ["10"], "visible": true }], "visible": true }], "visible": true }]], "visible": true }), 'New heap array', 'Creates a new array composed of probided type and places it on the heap.'),
         new Helper('ref of', new E.ReferenceOf, Serializer.deserialize({ "element": "Program", "params": [[{ "element": "VariableImplicitDefinition", "params": ["foo", { "element": "RawData", "params": ["10"], "visible": true }], "visible": true }, { "element": "ReferenceDefinition", "params": ["bar", { "element": "Int", "params": [], "visible": true }, { "element": "ReferenceOf", "params": [{ "element": "RawData", "params": ["foo"], "visible": true }], "visible": true }], "visible": true }]], "visible": true }), 'Reference of', 'Returns a new reference to the provided object.'),
+        new Helper('val of', new E.ValueOf, Serializer.deserialize({ "element": "Program", "params": [[{ "element": "VariableImplicitDefinition", "params": ["a", { "element": "RawData", "params": ["1"], "visible": true }], "visible": true }, { "element": "ReferenceDefinition", "params": ["b", { "element": "Int", "params": [], "visible": true }, { "element": "ReferenceOf", "params": [{ "element": "RawData", "params": ["a"], "visible": true }], "visible": true }], "visible": true }, { "element": "VariableDefinition", "params": ["c", { "element": "Ref", "params": [{ "element": "Ref", "params": [{ "element": "Int", "params": [], "visible": true }], "visible": true }], "visible": true }, { "element": "ReferenceOf", "params": [{ "element": "RawData", "params": ["b"], "visible": true }], "visible": true }], "visible": true }, { "element": "Set", "params": [{ "element": "ValueOf", "params": [{ "element": "ValueOf", "params": [{ "element": "RawData", "params": ["c"], "visible": true }], "visible": true }], "visible": true }, { "element": "RawData", "params": ["9"], "visible": true }], "visible": true }, { "element": "VariableImplicitDefinition", "params": ["d", { "element": "ValueOf", "params": [{ "element": "RawData", "params": ["b"], "visible": true }], "visible": true }], "visible": true }]], "visible": true }), 'Value of', 'Returns a value referenced by a reference.'),
         new Helper('default value', new E.DefaultValue, Serializer.deserialize({ "element": "Program", "params": [[{ "element": "VariableDefinition", "params": ["foo", { "element": "Int", "params": [], "visible": true }, { "element": "DefaultValue", "params": [{ "element": "Int", "params": [], "visible": true }], "visible": true }], "visible": true }]], "visible": true }), 'Default value', 'Returns a new object of the provided type.'),
         new Helper('[]', new E.ElementAt, Serializer.deserialize({ "element": "Program", "params": [[{ "element": "VariableDeclaration", "params": ["foo", { "element": "Array", "params": [{ "element": "Int", "params": [], "visible": true }, "5"], "visible": true }], "visible": true }, { "element": "Set", "params": [{ "element": "ElementAt", "params": [{ "element": "RawData", "params": ["foo"], "visible": true }, { "element": "RawData", "params": ["3"], "visible": true }], "visible": true }, { "element": "RawData", "params": ["4"], "visible": true }], "visible": true }, { "element": "Print", "params": [{ "element": "ElementAt", "params": [{ "element": "RawData", "params": ["foo"], "visible": true }, { "element": "RawData", "params": ["3"], "visible": true }], "visible": true }], "visible": true }]], "visible": true }), 'Element at', 'Returns an element that is located under specified index in given array.'),
         new Helper('random', new E.Random, Serializer.deserialize({ "element": "Program", "params": [[{ "element": "VariableImplicitDefinition", "params": ["foo", { "element": "Random", "params": [], "visible": true }], "visible": true }]], "visible": true }), 'Random', 'Yields a random number between 0 and 100.'),
