@@ -9,7 +9,16 @@
     }
 
     export function createUploadForm(programManager: Program.ProgramManager): JQuery {
-        var input = $('<input type="file"/>').change((e: any) => {
+        var input = $('<input type="file"/>');
+
+		input.click(() => {
+			input.val(null);
+		});
+
+		input.change((e: any) => {
+			if (!input.val())
+				return;
+
             var file = e.target.files[0];
             if (!file) {
                 return;
@@ -19,6 +28,7 @@
                 var code = e.target.result;
                 try {
                     var program = Serializer.deserialize(JSON.parse(code));
+
                     if (program instanceof E.Program)
                         programManager.setProgram(program);
                     else

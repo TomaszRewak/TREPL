@@ -6752,7 +6752,13 @@ var MemoryManager;
     }
     MemoryManager.downloadProgram = downloadProgram;
     function createUploadForm(programManager) {
-        var input = $('<input type="file"/>').change((e) => {
+        var input = $('<input type="file"/>');
+        input.click(() => {
+            input.val(null);
+        });
+        input.change((e) => {
+            if (!input.val())
+                return;
             var file = e.target.files[0];
             if (!file) {
                 return;
@@ -7125,7 +7131,7 @@ var Menu;
             if (!this._mainMenu) {
                 var content = [
                     { label: 'Toolbox', sublabel: 'Basic components using which you can build programs', icon: 'glyphicon-menu-right', action: () => { this.gotoToolbox(); } },
-                    { label: 'Tutorials', sublabel: 'You can find ready to use programs here', icon: 'glyphicon-menu-right', action: () => { this.gotoSections(); } },
+                    { label: 'Tutorials [work in progress]', sublabel: 'You can find ready to use programs here', icon: 'glyphicon-menu-right', action: () => { this.gotoSections(); } },
                     { label: 'Save/Load program', sublabel: 'Download your work to finish it later', icon: 'glyphicon-menu-right', action: () => { this.gotoSaveLoad(); } }
                 ];
                 this._mainMenu = this.generateMenuPage('Menu', content);

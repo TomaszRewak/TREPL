@@ -120,7 +120,7 @@ module Menu {
 		}
 		private generateMenuPage(title: string, content: { label: string, sublabel: string, icon: string, action: () => any, extraClass?: string, path?: string }[], backButtonName?: string): MenuPage {
 			var menu = this.generateMenuPageContent(content);
-
+			
 			return new MenuPage(this, title, menu, backButtonName);
 		}
 
@@ -129,7 +129,7 @@ module Menu {
 			if (!this._mainMenu) {
 				var content = [
 					{ label: 'Toolbox', sublabel: 'Basic components using which you can build programs', icon: 'glyphicon-menu-right', action: () => { this.gotoToolbox(); } },
-					{ label: 'Tutorials', sublabel: 'You can find ready to use programs here', icon: 'glyphicon-menu-right', action: () => { this.gotoSections(); } },
+					{ label: 'Tutorials [work in progress]', sublabel: 'You can find ready to use programs here', icon: 'glyphicon-menu-right', action: () => { this.gotoSections(); } },
 					{ label: 'Save/Load program', sublabel: 'Download your work to finish it later', icon: 'glyphicon-menu-right', action: () => { this.gotoSaveLoad(); } }
 				];
 				this._mainMenu = this.generateMenuPage('Menu', content);
