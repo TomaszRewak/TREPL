@@ -1,0 +1,73 @@
+html {
+    margin-bottom: 80%;
+}
+
+body {
+    font-family: "Trebuchet MS", Helvetica, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: stretch;
+    flex-direction: column;
+}
+
+#sectionsHolder {
+	margin: 5px;
+}
+
+#exampleHolder {
+	background-color: #ccccff;
+	border-bottom: 3px black solid;
+	padding: 5px;
+}
+
+.record {
+	background-color: #ffffff;
+	border: 1px #cccccc solid;
+	border-left: 3px #4444cc solid;
+	margin: 2px 0;
+	padding: 0 5px;
+}
+
+.editedRecord {
+	border-left-color: #44aa44;
+	background-color: #ddffdd;
+}
+
+.lessons,
+.sections
+{
+	min-height: 10px;
+	background-color: #dddddd;
+	margin-bottom: 5px;
+	padding: 1px 2px 1px 0;
+}
+
+.section {
+	padding-bottom: 5px;
+}
+
+.recordData {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
+.recordData > * {
+	margin: 5px;
+}
+
+.id, .order, .parent {
+	width: 40px;
+	text-align: center;
+	padding: 0 4px;
+}
+
+.lessonName, .lessonDescription, .lessonTask, .lessonCode,
+.sectionName, .sectionDescription {
+	flex: 1;
+}
+
+.recordHeader {
+	padding-left: 5px;
+}

@@ -1,0 +1,1220 @@
+﻿@fontSize: 13px;
+@topbarSize: 50px;
+@consoleSize: 150px;
+@elementColor: #80abdb;
+@backColor: #d7d7d7;
+@MenuBorderColor: #bdbdbd;
+@MenuGrayLight: #e0e0e0;
+@fieldColor: @backColor;
+@editColor: rgba(255, 255, 255, 0.50);
+@menusColor: #2f8d28;
+
+html, body {
+	font-family: "Arial", Helvetica, sans-serif;
+	font-size: @fontSize;
+	margin: 0;
+	height: 100%;
+	overflow: hidden;
+	background-color: @backColor;
+	font-weight: bold;
+}
+
+#siteContent {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+}
+
+#topBar {
+	display: flex;
+	margin: 0;
+	text-align: center;
+	align-items: center;
+	background-color: #fbfbfb;
+	border-bottom: 1px solid @MenuBorderColor;
+}
+#topBar > .topBarItem {
+	line-height: 20px;
+	border-right: 1px solid @MenuBorderColor;
+	border-left: 1px solid @MenuBorderColor;
+	padding: 0 10px;
+	min-width: 40px;
+	margin: 4px 0 4px -1px;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	-webkit-user-select: none;
+	user-select: none;
+	text-decoration: none;
+	color: black;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	min-height: 20px;
+}
+#topBar > .topBarItem > span {
+	top: -0.5px;
+}
+#topBar > .topBarSeparator {
+	flex: 1;
+}
+#topBar > .topBarButton {
+	cursor: pointer;
+}
+#topBar > .topBarButton:hover {
+	background-color: #e8e8e8;
+}
+#topBar > .topBarButton:active {
+	background-color: #dddddd;
+}
+#topBar > #facebookButton {
+	color: rgb(59,89,152);
+}
+#topBar > #donateButton {
+	color: #2f8d28;
+}
+
+.menuButtonDisabled {
+	color: #bdbdbd !important;
+	pointer-events: none;	
+}
+
+.speedSlider {
+	width: 200px;
+	margin-left: 20px;
+	margin-right: 0;
+}
+.tempStackCheckBox {
+	margin: 5px;
+}
+
+#console {
+	margin-top: 6px;
+	height: @consoleSize;
+	min-height: 50px;
+	background-color: #fbfbfb;
+	border-top: 1px solid @MenuBorderColor;
+	font-size: 11px;
+	display: flex;
+	flex-direction: column;
+}
+#consoleLog {
+	margin: 1px 0;
+	overflow: hidden;
+	flex: 1;
+	font-family: "Courier New", Courier, monospace;
+}
+#consoleInputHolder {
+	border-top: 1px solid @MenuBorderColor;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+#consolePrompt {
+	color: @MenuBorderColor;
+	padding-left: 10px;
+}
+#consoleInput {
+	min-height: 13px;
+	flex: 1;
+	padding: 3px 10px;
+}
+#consoleSubimt {
+	cursor: pointer;
+	padding: 3px 10px;
+	margin: 1px 0;
+	border-left: 1px solid @MenuBorderColor;
+}
+#consoleSubimt:hover {
+	background-color: #e8e8e8;
+}
+.consoleMessage {
+	display: flex;
+	padding: 1px 0;
+}
+.consoleMessageDate {
+	color: @MenuBorderColor;
+	padding: 0 10px;
+}
+.consoleMessageDelimiter {
+	color: @MenuBorderColor;
+}
+.consoleMessageText {
+	flex: 1;
+	padding: 0 10px;
+}
+
+#IDE {
+	margin: 6px 6px 0 0;
+	display: flex;
+	min-width: 100%;
+	flex: 1;
+	flex-direction: row;
+	overflow: hidden;
+}
+#IDE > .IDEPart {
+	margin-left: 6px;
+	width: 26%;
+	min-width: 10%;
+	display: flex;
+	flex-direction: column;
+	border-radius: 6px;
+	position: relative;
+	background-color: #fbfbfb;
+	border: 1px solid @MenuBorderColor;
+	padding-bottom: 5px;
+}
+#IDE > .IDEPart:last-child {
+	flex:1;
+}
+.IDEPartPage {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	display: flex;
+	flex-direction: column;
+}
+.IDEPartPage > .IDEPartName {
+	height: 26px;
+	line-height: 26px;
+	text-align: center;
+	border-bottom: 1px solid @MenuBorderColor;
+	position: relative;
+
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+}
+.IDEPartPage > .IDEPartName > .IDEPartNameText {
+	height: 26px;
+	line-height: 26px;
+	padding: 0 3px;
+	z-index: 100;
+	border-radius: 7px;
+}
+.IDEPartPage > .IDEPartNamePreview {
+	background-color: rgba(128, 171, 219, 0.35);
+}
+.IDEPartPage > .IDEPartNameDescription {
+	background-color: rgba(143, 219, 128, 0.35);
+}
+.IDEPartPage > .IDEPartName > .IDEPartHeaderButton {
+	height: 26px;
+	line-height: 26px;
+	color: @MenuBorderColor;
+	display: flex;
+	flex-direction: row;
+	position: absolute;
+	top:0;
+	cursor: pointer;
+}
+.IDEPartPage > .IDEPartName > .IDEPartHeaderButton:not(.right) {
+	left: 0;
+}
+.IDEPartPage > .IDEPartName > .IDEPartHeaderButton.right {
+	right: 0;
+}
+.IDEPartPage > .IDEPartName > .IDEPartHeaderButton:hover {
+	color: black;
+}
+.IDEPartPage > .IDEPartName > .IDEPartHeaderButton > span {
+	width: 30px;
+	height: 26px;
+	line-height: 26px;
+}
+.IDEPartPage > .IDEPartName > .IDEPartHeaderButton > p {
+	font-size: 11px;
+	height: 26px;
+	line-height: 26px;
+	margin: 0 4px;
+	opacity: 0.7;
+}
+@keyframes spin { 100% { transform: rotate(360deg); transform: rotate(360deg); } }
+.IDEPartPage > .IDEPartName > .loadingIndicator > span {
+    animation: spin 4s linear infinite;	
+}
+.IDEPartPage > .IDEPartContent {
+	flex: 1;
+}
+
+.labeledItem {
+	position: relative;
+}
+.labeledItem > .label {
+	position: absolute;
+	z-index: 1000000;
+	background-color: white;
+	border: 1px solid @MenuBorderColor;
+	border-radius: 5px;
+	opacity: 0;
+	pointer-events: none;
+	color: black;
+	transition-delay: 0.0s;
+	transition-duration: 0.0s;
+	padding: 2px 5px;
+	white-space: nowrap;
+	top: 100%;
+	line-height: normal;
+}
+.labeledItem:not(.right) > .label {
+	left: 0;    
+}
+.labeledItem.right > .label {
+	right: 0;    
+}
+.labeledItem:hover > .label {
+	transition-delay: 0.5s;
+	transition-duration: 0.3s;
+	opacity: 1;
+}
+
+#memory {
+	margin-top: 2px;
+	display: flex;
+	min-width: 100%;
+	flex: 1;
+	flex-direction: row;
+	overflow: hidden;
+}
+#memory > .memoryPart {
+	width: 26%;
+	min-width: 10%;
+	display: flex;
+	flex-direction: column;
+	border-radius: 4px;
+	position: relative;
+}
+#memory > .memoryPart .stackPartName {
+	width: 100%;
+	color: #d4d4d4;
+	text-align: center;
+	font-size: 20px;
+	margin-bottom: 5px;
+}
+#memory > .memoryPart > .memoryPartName {
+	position: absolute;
+	width: 100%;
+	top: 50%;
+	color: #d4d4d4;
+	text-align: center;
+	font-size: 20px;
+}
+#memory > .memoryPart > .memoryPartContent {
+	flex: 1;
+}
+#memory .scrollInternalHolder {
+	overflow: visible;
+}
+#memory .resizer {
+	background-color: @MenuBorderColor;
+	width: 1px;
+}
+#memory > .memoryPart:last-child {
+	flex:1;
+}
+
+#memory > #memoryPartTempStakc.memoryPartHidden {
+   opacity: 0.3;
+}
+
+
+.resizer {
+	position: relative;
+}
+.resizable {
+	position:absolute;
+	height: 100%;
+	width: 100%;
+	z-index: 100000;
+}
+.resizable.resizableHor {
+	min-width: 8px;
+	top: 0 !important;
+	cursor: ew-resize;
+}
+.resizable.resizableVer {
+	min-height: 8px;
+	left: 0 !important;
+	cursor: ns-resize;
+}
+
+#IDEPartProgram .IDEPartContent {
+	margin: 0 0 0 2px;
+}
+
+.codeField > .codeElement {
+	margin: 2px 2px 2px 0;
+	box-shadow: none !important;
+	outline: 0 !important;
+	border-radius: 4px;
+}
+
+.elementsField {
+	padding: 5px 0;
+}
+.elementsField > .helper {
+	border-bottom: 1px solid #e9e9e9;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	margin: 0 2px;
+}
+.elementsField > .helper > .helperDescription {
+	padding-left: 3px;
+	font-size: 10px;
+	margin: -1px 0;
+	flex: 0.3;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	align-self: stretch;
+	cursor: pointer;
+}
+.elementsField > .helper > .helperDescription > .helperMore {
+	font-size: 10px;
+	margin: 0 4px;
+	color: #d4d4d4;
+}
+.elementsField > .helper > .helperDescription:hover > .helperMore {
+	color: gray;
+}
+.elementsField > .helper > .helperHolder {
+	//background-color: @backColor;
+	//border: 1px solid #5b8fb4;
+	margin: 2px 0;
+	padding-left: 2px;
+	display: inline-block;
+	flex: 0.7;
+	border-left: 1px solid #d4d4d4;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	align-self: stretch;
+}
+.elementsField > .helper > .helperHolder > .codeElement {
+	border-radius: 5px;
+	display: inline-block;
+	float: right;
+}
+
+.programsField > .helper {
+	border-bottom: 1px solid #e9e9e9;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	margin: 0 2px;
+}
+.programsField > .helper:hover {
+	background-color: rgba(0,0,0,0.075);
+}
+.programsField > .helper > .helperName {
+	font-size: 13px;
+	margin-top: 2px;
+	margin-bottom: 1px;
+	padding-left: 5px;
+	flex: 0.3;
+}
+.programsField > .helper > .helperDescription {
+	font-size: 10px;
+	margin-top: 2px;
+	margin-bottom: 1px;
+	padding: 0 5px;
+	flex: 0.7;
+}
+.programsField > .helper > .helperButton {
+	width: 60px;
+	height: 18px;
+	line-height: 18px;
+	text-align: center;
+	margin: 4px;
+	border: 1px solid #698bb2;
+	background-color: #80abdb;
+	outline: 0 !important;
+	font-size: 12px;
+	border-radius: 6px;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	-webkit-user-select: none;
+	user-select: none;
+	cursor: pointer;
+}
+.programsField > .helper > .helperButton:hover {
+	border: 1px solid #4cad45;
+	background-color: #79d772;
+}
+
+.scrollExternalHolder {
+	display: flex;
+	flex-direction: row;
+	/*overflow: hidden;*/
+}
+.scrollInternalHolder {
+	flex: 1;
+	overflow: hidden;
+	position: relative;
+}
+.scrollContentWrapper {
+	width: 100%;
+	position: absolute;
+}
+.scrollBar {
+	width:9px;
+	padding-bottom: 2px;
+	z-index: 50000;
+	position: relative;
+	margin: 2px 2px 2px 0;
+	background-color: #E2E2E2;
+	border-radius: 4px;
+}
+.scrollBarButton {
+	width: 7px;
+	height: 20px;
+	border: 1px solid @MenuBorderColor;
+	background-color: #eeeeee;
+	max-height: 100%;
+	left: 0 !important;
+	cursor: pointer;
+	position: absolute !important;
+	border-radius: 4px;
+}
+
+.pickerExternalHolder {
+	display: flex;
+	flex-direction: column;
+}
+.pickerHeader {
+	padding-top: 2px;
+	margin: 0 -1px;
+	background-color: #d7d7d7;
+}
+.pickerContent {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	overflow: hidden;
+}
+.pickerContent > div {
+	flex: 1;
+}
+.pickerHolder {
+	display: flex;
+	flex-direction: row;
+}
+.pickerHolder:not(:first-of-type) {
+	margin-top: 2px;
+}
+.pickerButton {
+	flex: 1;
+	height: 20px;
+	line-height: 20px;
+	background-color: #fbfbfb;
+	border: 1px solid @MenuBorderColor;
+	text-align: center;
+	cursor: pointer;
+}
+.pickerButtonText {
+	margin: 0 2px;
+	overflow: hidden;
+}
+.pickerButton:not(:first-child) {
+	margin-left: 2px;
+}
+.pickerButton:not(.pickerButtonSelected) {
+	opacity: 0.5;
+}
+.pickerIndicator {
+	margin: 2px 0 0 0;
+	height: 0;
+	background-color: #fbfbfb;
+	border-top: 1px solid @MenuBorderColor;
+	background: linear-gradient(rgba(0, 0, 0, 0.00), #fbfbfb);
+}
+.pickerButtonIndicator {
+	height: 4px;
+	background-color: #fbfbfb;
+	border-left: 1px solid @MenuBorderColor;
+	border-right: 1px solid @MenuBorderColor;
+	margin: 0 -1px 0 -1px;
+}
+
+.valuesPickerColorSheme {
+	background-color: #80abdb;
+	border-color: #698bb2
+}
+.codeElement {
+	background-color: #80abdb;
+	border: #698bb2 1px solid;
+	font-family: "Courier New", Courier, monospace;
+	color: black;
+	cursor: pointer;
+}
+.codeElement.selectedElement {
+	box-shadow: rgb(51, 90, 132) 0 0 15px 1px;
+	z-index: 10000 !important;
+}
+.codeElement > .componentsLine > .dropField,
+.codeElement > .componentsLine > .dropList,
+.codeElement > .componentsLine > .textField {
+	background-color: #bbd2eb;
+	border-color: #698bb2;
+}
+.codeElement > .componentsLine > .dropField,
+.codeElement > .componentsLine > .dropList {
+	border-width: 1px;
+	border-style: solid;
+}
+.flowPickerColorSheme,
+.flowCodeElement {
+	background-color: #ddc435;
+	border-color: #b59e19;
+}
+.flowCodeElement > .componentsLine > .dropField,
+.flowCodeElement > .componentsLine > .dropList,
+.flowCodeElement > .componentsLine > .textField {
+	background-color: #ede095;
+	border-color: #b59e19
+}
+.variablesPickerColorSheme,
+.variableCodeElement {
+	background-color: #79d772;
+	border-color: #4cad45
+}
+.variableCodeElement > .componentsLine > .dropField,
+.variableCodeElement > .componentsLine > .dropList,
+.variableCodeElement > .componentsLine > .textField {
+	background-color: #b0e6ac;
+	border-color: #4cad45;
+}
+.typePickerColorSheme,
+.typeSystemCodeElement {
+	background-color: #b17256;
+	border-color: #985d42
+}
+.typeSystemCodeElement > .componentsLine > .dropField,
+.typeSystemCodeElement > .componentsLine > .dropList,
+.typeSystemCodeElement > .componentsLine > .textField {
+	background-color: #d8b3a3;
+	border-color: #985d42
+}
+.mathPickerColorSheme,
+.mathCodeElement {
+	background-color: #b089d7;
+	border-color: #9864cc;
+}
+.mathCodeElement > .componentsLine > .dropField,
+.mathCodeElement > .componentsLine > .dropList,
+.mathCodeElement > .componentsLine > .textField {
+	background-color: #cdb6e5;
+	border-color: #9864cc
+}
+.functionPickerColorSheme,
+.functionCodeElement {
+	background-color: #de8e36;
+	border-color: #a56219;
+}
+.functionCodeElement > .componentsLine > .dropField,
+.functionCodeElement > .componentsLine > .dropList,
+.functionCodeElement > .componentsLine > .textField {
+	background-color: #eabc89;
+	border-color: #a56219
+}
+.otherPickerColorSheme,
+.otherCodeElement {
+	background-color: #cbcbcb;
+	border-color: #a8a8a8;
+	color: #808080;
+}
+.otherCodeElement > .componentsLine > .dropField,
+.otherCodeElement > .componentsLine > .dropList,
+.otherCodeElement > .componentsLine > .textField {
+	background-color: #e9e9e9;
+	border-color: #a8a8a8
+}
+
+.codeElement.withoutProgress {
+	background-color: #cbcbcb;
+	border-color: #a8a8a8;
+	color: #808080;
+}
+.codeElement.withoutProgress > .componentsLine > .dropField,
+.codeElement.withoutProgress > .componentsLine > .dropList,
+.codeElement.withoutProgress > .componentsLine > .textField {
+	background-color: #e9e9e9;
+	border-color: #a8a8a8;
+}
+
+.codeElement > .componentsLine {	
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+}
+.codeElement .dropField {
+	margin: 1px;
+	border-radius: 7px;
+	position: relative;
+}
+.codeElement .dropField:empty {
+	width: 20px;
+	height: 14px;
+}
+.codeElement .dropField > .codeElement {
+	border-radius: 7px;
+	margin: -1px;
+}
+.codeElement .helpersFrame {
+	position: absolute;
+	z-index: 1241242300;
+}
+
+.elementHelpersList,
+.elementInfo {
+	position: absolute;
+	z-index: 1241242300;
+	background-color: #242424;
+	border: 1px solid #5c5c5c;
+	color: #d0d0d0;
+	border-radius: 4px;
+	overflow: hidden;
+	min-height: 10px;
+	min-width: 10px;
+	pointer-events: none;
+	font-weight: normal;
+	font-size: 12px;
+	margin: -1px 0 0 4px;
+}
+.elementInfo > .standardInfo,
+.elementInfo > .errorInfo {
+	padding: 1px 5px;
+}
+.elementInfo > .standardInfo {
+
+}
+.elementInfo > .errorInfo {
+}
+
+.elementHelpersList .codeElement > .componentsLine {	
+	flex-wrap: nowrap;
+}
+.elementHelpersList > .elementHelper {
+	padding: 5px 5px 0 5px;
+	opacity: 0.3;
+	color: black;
+}
+.elementHelpersList > .elementHelper.selected {
+	opacity: 1;
+}
+.elementHelpersList > .elementHelper > .helperHolder {
+	display: inline-block;
+}
+.elementHelpersList > .hintSeparator {
+	margin-top: 5px;
+	height: 1px;
+	width: 100%;
+	background-color: #d4d4d4;
+}
+.elementHelpersList > .hint {
+	color: #b1b1b1;
+	text-align: right;
+	text-wrap: none;
+	white-space: nowrap;
+	font-size: 11px;
+	padding: 2px 5px;
+}
+.elementHelpersList > .stringHelper {
+	opacity: 0.3;
+	color: white;
+	display: flex;
+	flex-direction: row;
+	width: 100%;
+}
+.elementHelpersList > .stringHelper.selected {
+	opacity: 1;
+}
+.elementHelpersList > .stringHelper > .stringHelperName {
+	padding: 5px 5px 0 5px;
+	text-align: left;
+}
+.elementHelpersList > .stringHelper > .stringHelperDescription {
+	padding: 5px 5px 0 5px;
+	text-align: right;
+	flex: 1;
+}
+
+.codeElement .label {
+	padding: 0 2px;
+	height: 16px;
+	line-height: 16px;
+	font-size: @fontSize;
+	white-space: nowrap;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	-webkit-user-select: none;
+	user-select: none;
+	pointer-events: none;
+	margin: 1px 0;
+}
+
+.contenteditable {
+	cursor: text;
+}
+[contenteditable="true"]:focus {
+	outline: none;
+}
+.codeElement > .componentsLine > .textField {
+	min-width: 5px;
+	padding: 0 4px;
+	line-height: 16px;
+	font-size: @fontSize;
+	margin: 0 2px;
+	border-radius: 7px;
+	text-align: center;
+	margin-top: 1px;
+	margin-bottom: 1px;
+}
+.codeElement > .componentsLine > .textField:only-child {
+	margin-left: 5px;
+	margin-right: 5px;
+}
+
+.codeElement > .componentsLine > .dropList {
+	margin: 1px;
+	min-width: 30px;
+}
+.codeElement > .componentsLine > .dropList:only-child {
+	margin-left: 15px;
+	margin-right: -1px;
+	width: 100%;
+}
+.codeElement > .componentsLine > .dropList > .dropListPlaceholder {
+	width: 100%;
+	clear: both;
+	float: left;
+	position: relative;
+	overflow: visible !important;
+	display: inline-block;
+	margin-top: -1px;
+
+	border-color: inherit;
+	transition-duration: 0.1s;
+}
+.codeElement > .componentsLine > .dropList > .dropListPlaceholder:empty {
+	height: 0;
+	min-height: 0;
+}
+.codeElement > .componentsLine > .dropList > .dropListPlaceholder.hoveredPlaceholder {
+	box-shadow: inset 0 0 15px rgba(100, 100, 100, 0.5);
+}
+.codeElement > .componentsLine > .dropList > .dropListPlaceholder:nth-last-child(2) {
+	margin-bottom: -1px;
+}
+.codeElement > .componentsLine > .dropList > .dropListPlaceholder > .codeElement {
+	clear: both;
+	float: left;
+	width: 100%;
+	margin-left: -1px;
+}
+.codeElement > .componentsLine > .dropList > .dropListPlaceholder.underEdition {
+	height: 19px;
+	min-height: 19px !important;
+	line-height: 19px;
+	transition-duration: 0s;
+}
+.codeElement > .componentsLine > .dropList > .dropListPlaceholder:only-child {
+	max-height: 19px;
+	height: 19px;
+}
+.codeField.runningProgram {
+	transition-duration: 0.2s;
+}
+.codeField.runningProgram > .codeElement {
+	pointer-events: none;
+}
+.codeField.runningProgram:hover {
+	opacity: 0.6;
+}
+
+.componentOperator {
+	color: #1f621a;
+}
+.componentKeyWord {
+	color: #1a2462;
+}
+
+@stackFieldHeight: 21px;
+.stackLabels {
+	position: absolute;
+	width: 100%;
+	overflow: hidden;
+}
+.stackLabelsInner {
+}
+.stackField {
+	font-family: "Courier New", Courier, monospace;
+	height: @stackFieldHeight;
+	line-height: @stackFieldHeight + 2px;
+	color: @MenuGrayLight;
+	border-bottom: 1px solid @MenuGrayLight;
+	margin: 0 5px;
+	margin-top: -1px;
+}
+
+.stackValuesHolder {
+	padding: 1px 2px 0 2px;
+}
+
+.objectElement {
+	width: 100%;
+}
+.objectElement:empty {
+	height: 20px;
+}
+.scope,
+.onStackElement {
+	margin-top: -1px;
+	color: black;
+}
+.scope,
+.onStackElement,
+.objectField {
+	background-color: #79d772;
+	border: 1px solid #4cad45;
+	display: flex;
+	align-items: center;
+}
+.scope {
+	height: 20px;
+	background-color: #ddc435;
+	border-color: #b59e19;
+}
+.objectField  {
+	margin: -1px;
+}
+.onStackElementValue,
+.objectFieldValue {
+	flex: 1;
+	margin-right: -1px;
+	margin-top: -1px;
+	margin-bottom: -1px;
+	background-color: @elementColor;
+	border: 1px solid #698bb2;
+	text-align: center;
+}
+.customObjectValue,
+.baseObjectValue,
+.referenceValue {
+	background-color: @editColor;
+	min-width: 5px;
+	padding: 0 8px;
+	height: 16px;
+	line-height: 16px;
+	font-size: @fontSize;
+	margin: 2px 2px;
+	border-radius: 7px;
+	text-align: center;
+}
+#tempStack .onStackElementName {
+	display: none;
+}
+#tempStack .onStackElementValue {
+	margin-left: -1px;
+}
+.scopeName,
+.onStackElementName,
+.objectFieldName {
+	background-color: @editColor;
+	min-width: 5px;
+	padding: 0 8px;
+	height: 16px;
+	line-height: 16px;
+	font-size: @fontSize;
+	margin: 0 2px;
+	border-radius: 7px;
+	text-align: center;
+}
+.scopeName {
+	width: 100%;
+}
+.onStackElementEqual,
+.objectFieldEqual {
+	height: @stackFieldHeight - 1px;
+	line-height: @stackFieldHeight - 1px;
+	color: #000000;
+	text-align: center;
+	padding: 0 3px;
+}
+.onStackElementHidden {
+	opacity: 0.5;
+}
+
+.stackSpace,
+.objectSpace {
+	width: 100%;
+	height: 1px;
+	background-color: @fieldColor;
+}
+
+.heap {
+	height: 2000px;
+}
+.heap > .onHeapElement {
+	position: absolute !important;
+	padding: 4px;
+	font-family: "Courier New", Courier, monospace;
+}
+
+.onHeapElement {
+	border: 1px solid #e0e0e0;
+	cursor: move;
+}
+.onHeapElementValue {
+	background-color: @elementColor;
+	border: 1px solid #698bb2;
+}
+
+.connection {
+	position: absolute!important;
+	left: 0;
+	top: 0;
+	//background-color: rgba(154, 26, 26, 0.12);
+	pointer-events: none;
+	z-index: 100000;
+}
+.objectElement.reference {
+	color: @elementColor;
+}
+
+.svgConnection {
+	position: absolute;
+	z-index: 100000;
+	overflow: visible;
+	margin-top: 8px;
+	width: 1px;
+	height: 1px;
+}
+
+.help {
+	position: absolute;
+	height: 100%;
+	width: 100%;
+	background-color: rgba(0, 0, 0, 0.5);
+	top: 0;
+	left: 0;
+	z-index: 999999999999999 !important;
+	overflow: hidden;
+}
+.help > .helpField {
+	position: absolute !important;
+	background-color: rgba(255, 255, 255, 0.85);
+	border: 1px solid white;
+	text-align: center;
+	display: flex;
+	align-items: center;
+	flex-direction: row;
+	border-radius: 5px;
+}
+.help > .helpField > div {
+	padding: 0 10px;
+	width: 100%;
+}
+.helpToolbox {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+.helpToolbox > .codeElement {
+}
+
+.elementPreview {
+	display: flex;
+	flex-direction: column;
+}
+.elementPreview > .elementPreviewElement {
+	align-self: center;
+	margin: 8px 4px;
+}
+.elementPreview > .elementPreviewElement > .codeElement {
+	border-radius: 5px;
+	display: inline-block;
+}
+.elementPreview > .elementPreviewExample {
+	align-self: center;
+	margin: 8px 0;
+	padding: 0 2px;
+	display: flex;
+	flex-direction:column;
+	pointer-events: none;
+}
+.elementPreview > .elementPreviewExample > .codeElement {
+	display: inline-block;
+	align-self: stretch;
+	background-color: #f2f2f2;
+	border-color: #e4e4e4;
+	border-radius: 5px;
+}
+.elementPreview > .elementPreviewText {
+	align-self: stretch;
+	padding: 2px 10px;
+	font-size: 11px;
+	text-align: center;
+}
+.elementPreview > .elementPreviewHint {
+	color: @MenuBorderColor;
+	align-self: stretch;
+	padding: 12px 10px;
+	font-size: 11px;
+	text-align: right;
+}
+
+.indicator {
+	border-width: 1px;
+	border-style: solid;
+	background-color: #164520;
+	opacity: 0.0;
+	position: absolute;
+	z-index: 99999999999999;
+	pointer-events: none;
+	transition-duration: 0.2s;
+	padding: 1px;
+}
+.executionIndicator {
+	background-color: #cc1313;
+	border-color: #5a0000;
+}
+
+.error {
+	background-color: #e14646 !important;
+	border-color: #c32b2b !important;
+}
+.error > .componentsLine > .dropField,
+.error > .componentsLine > .dropList,
+.error > .componentsLine > .textField {
+	background-color: #f3aaaa;
+	border-color: #c32b2b;
+}
+
+.sliderHolder {
+	background-color: #dddddd;
+	min-width: 50px;
+	height: 4px;
+	border-radius: 2px;
+	border: 1px solid @MenuBorderColor;
+	position: relative;
+}
+.sliderHolder > .sliderButton {
+	margin: -6px -6px;
+	height: 14px;
+	width: 14px;
+	border: 1px solid @MenuBorderColor;
+	background-color: #eeeeee;
+	border-radius: 10px;
+}
+
+.checkBoxButton {
+	width: 14px;
+	height: 14px;
+	border: 1px solid @MenuBorderColor;
+	background-color: #eeeeee;
+	border-radius: 5px;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	-webkit-user-select: none;
+	user-select: none;
+}
+.checkBoxButton > .checkBoxButtonTick {
+	line-height: 14px;
+	text-align: center;
+	margin: 0;
+	top: -4px;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+#loadingScreen {
+    min-height: 100%;
+    background-color: #D7D7D7;
+    display: flex;
+    flex-direction: column;
+    font-family: "Trebuchet MS", Helvetica, sans-serif;
+    color: black;
+    align-items: center;
+    justify-content: center;
+}
+#loadingScreen > #loadingModal {
+    width: 100%;
+    background-color: #FBFBFB;
+    padding: 30px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-width: 1px 0;
+    border-style: solid;
+    border-color: #bdbdbd;
+}
+#loadingScreen > #loadingModal > h6 {
+    color: #929fa7;
+}
+
+@MenuBorderColor: #bdbdbd;
+
+.IDEPartMenuToolbox .IDEPartContent,
+.IDEPartMenuReady .IDEPartContent{
+	display: flex;
+	flex-direction: column;
+}
+.menu {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+.menu > .menuButton {
+    margin: 0 2px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px #e9e9e9 solid;
+    user-select: none;
+}
+.menu > .menuButton > .menuButtonLabels {
+    flex: 1;
+    padding: 5px 10px;
+    display: flex;
+    flex-direction: column;
+}
+.menu > .menuButton > .menuButtonLabels > label.menuSubLabel {
+    font-size: 10px;
+    color: #bdbdbd;
+    padding: 2px 0 0 5px;
+}
+.menu > .menuButton > span {
+    color: @MenuBorderColor;
+    padding: 5px 10px;
+}
+.menu > .menuButton:hover > span {
+    color: black;
+}
+.menu > .menuButton > .menuButtonLabels > label > .menuButtonPath {
+    color: #989898;
+    padding-right: 4px;
+    font-size: 11px;
+}
+
+.memoryButtons {
+    display: flex;
+    flex-direction: column;
+    margin: 20px 0;
+}
+
+.uploadForm {
+    visibility: hidden;
+    height: 0;
+    position: absolute;
+}
+
+.taskDescription {
+    padding: 16px;
+    font-size: 11px;
+    color: grey;
+}

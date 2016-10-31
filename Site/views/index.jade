@@ -1,0 +1,95 @@
+﻿doctype html
+html(lang='en')
+  head
+    title Algorithms and data structures - DIY tutorial
+    meta(name='description', content="Create an algorithm or a data structure (or pick a ready one) and see how computer's memory changes during its execution.")
+    meta(name='keywords', content='algorithms datastructures')
+    meta(name='author', content='Tomasz Rewak')
+    meta(name='application-name', charset='TREPL')
+    meta(name='msvalidate.01', content='502E4DC38C65A18D7EB353103E9C9C60')
+    meta(charset='utf-8')
+    link(href='stylesheets/site.css', rel='stylesheet')
+    script(src='javascripts/jquery/jquery-2.1.3.min.js')
+    script(src='javascripts/index.js')
+  body
+    #background
+    #pages
+      #topLine
+      svg(viewBox="0 0 100 100" preserveAspectRatio="none").contentSeparator.downSeparator
+        path(d="M0,-1 L0,100 C50,100 50,0 100,-1")
+      #startPage.page
+        .pageContent
+          if user != null
+            #userName Hello, 
+              a(href="logout") #{user}
+          else
+            #userName
+              a(href="login") Login
+          #alpha
+            | beta
+          h1.title TREPL
+          a.startButton(href='ide')
+            | Start coding
+      svg(viewBox="0 0 100 100" preserveAspectRatio="none").contentSeparator.upSeparator
+        path(d="M0,101 L0,0 C50,0 50,100 100,101")
+      #why.page
+        .pageContent
+          h1
+            | What is the point of this website?
+          p.description
+            | There is no doubt that every programmer should have at least a basic knowledge of algorithms and data structures.
+          p
+            | The best way to learn about new things is by examples.
+            | As it is sometimes very easy to write and run a program, it might be challenging to figure out why and how they actually work.
+          p
+            | With this website we take the process of learning about algorithms and data structers to the whole new level.
+            | Besides of showing you the results of your program execution, we provide you with understandable, visual representation of what happens in the meantime.
+      svg(viewBox="0 0 100 100" preserveAspectRatio="none").contentSeparator.downSeparator
+        path(d="M0,-1 L0,100 C50,100 50,0 100,-1")
+      #description.page
+        .pageContent
+          h1
+            | What is TREPL?
+          p.description
+            | TRE is an object-oriented, functional programming language.
+            | The main goal when designing it was to create a simple to use tool that will enable users to easily discover how computer programs work under the hood.
+            | It focuses on the concepts of the "heap" and the "stack", which are the basis for many existing programming languages.
+          p.description
+            | TRE comes with a graphical IDE, that makes it even easier to explore the world of algorithms.
+            | Drag-and-drop functionality doesn't require learning a new language all over again. It's that simple.
+            | Are you a pro use? You can type your program in, if you want.
+          p.description
+            | You can also get started in no time by choosing a program from many predefind and ready to use ones.
+      svg(viewBox="0 0 100 100" preserveAspectRatio="none").contentSeparator.upSeparator
+        path(d="M0,101 L0,0 C50,0 50,100 100,101")
+      #author.page
+        .pageContent
+          h1
+            | About the author
+          p.description
+            | This is the one-man project. Everything, from implementing TREPL, to the design of this website, was created by me,
+          h3
+            | Tomasz Rewak
+          img#myPhoto(src='images/ja.jpg')
+          p.description
+            | In the spare time I like to watch movies and listen to music. I'm also interested in practical special effects.
+          p.description
+            | If you want to contact me, please use this address: 
+            i contact@trepl.xyz
+          p.description
+            | You can also find me on 
+            a(href='https://pl.linkedin.com/in/tomaszrewak', target='_blank') LinkedIn
+          p.description
+            | Source code can be found on 
+            a(href='https://github.com/TomaszRewak/TREPL', target='_blank') github
+          p.description
+            | See also 
+            a(href='http://ml-games.tomasz-rewak.com/', target='_blank') machine learning games
+          p.description
+            form(action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank")
+               input(type="hidden" name="cmd" value="_s-xclick")
+               input(type="hidden" name="hosted_button_id" value="USUR8CPL56B2Y")
+               input(type="image" src="https://www.paypal.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate")
+               img(alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1")
+
+    script(src='javascripts/analytics.js')

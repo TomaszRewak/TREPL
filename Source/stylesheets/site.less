@@ -1,0 +1,196 @@
+﻿body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: "Trebuchet MS", Helvetica, sans-serif;
+    font-weight: bold;
+    overflow-x: hidden;
+}
+#background {
+    background-image: url('../images/background.png');
+    width: 100vw;
+    height: 120vh;
+    background-size: cover;
+    
+    position: fixed;
+
+    filter: blur(3px);
+
+    z-index: -1;
+}
+#pages {
+    display: flex;
+    flex-direction: column;
+}
+#pages > .page {
+    width: 100%;
+    min-height: 70vh;
+
+    display: flex;
+    flex-direction: column;
+}
+#pages > .page > .pageContent {
+    width: 100%;
+    flex: 1;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+#pages > .page > .pageContent > .pagePart {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#topLine {
+    background-color: white;
+    height: 5vh;
+}
+#startPage {
+    height: 90vh;
+    background-color: rgba(20,20,20,.9);
+    z-index: 1;
+    color: white;
+    font-size: 20px;
+}
+#startPage #alpha {
+    color: rgba(255,255,255,.5);
+}
+#startPage #userName {
+    color: white;
+    font-size: 16px;
+    padding: 4px 20px;
+    position: absolute;
+    right: 0;
+    top: 6vh;
+}
+#startPage #userName a {
+    text-decoration: none;
+    color: white !important;
+}
+#startPage .startButton {
+    color: white;
+    border: solid 5px white;
+    background-color: rgba(37, 97, 139, 0.00);
+    border-radius: 100px;
+    font-size: 20px;
+    padding: 10px 30px;
+    font-weight: bolder;
+    text-decoration: none;
+    transition-duration: 0.3s;
+    //box-shadow: 1px 1px 1px black inset, 1px 1px 1px black;
+}
+#startPage .startButton:hover {
+    color: rgba(20, 20, 20, 1);
+    background-color: white;
+    //box-shadow: 1px 1px 1px black;
+    text-shadow: none;
+}
+#startPage h1 {
+    font-size: 80px;
+    margin-top: 0;
+}
+#startPage p {
+    width: 60%;
+    text-align: center;
+    font-weight: normal; 
+}
+
+#why {
+    z-index: 2;
+    background-color: #FBFBFB;
+    color: black;
+    padding-bottom: 50px;
+}
+#why h1 {
+    padding: 10px;  
+    font-size: 40px;  
+}
+#why p {
+    width: 60%;
+    text-align: center;
+    font-weight: 600;
+    color: rgb(100, 100, 100);
+}
+
+#description {
+    padding-top: 50px;
+    padding-bottom: 50px;
+    z-index: 1;
+    background-color: rgba(20,20,20,.9);
+    color: white;
+    padding-bottom: 100px;
+}
+#description h1 {
+    padding: 10px;  
+    font-size: 40px;   
+}
+#description p {
+    width: 60%;
+    text-align: center;
+    font-weight: normal; 
+}
+
+#author {
+    z-index: 2;
+    background-color: #FBFBFB;
+    color: black;
+    //box-shadow: 0 0 20px 1px black;
+    //text-shadow: 1px 1px 1px black;
+    padding-top: 50px;
+    padding-bottom: 30px;
+    color: rgb(100, 100, 100);
+}
+#author h1 {
+    padding: 10px;
+    font-size: 40px; 
+    color: black;
+}
+#author h3 {
+    margin-top: 0;
+}
+#author p {
+    width: 60%;
+    text-align: center;
+    font-weight: normal; 
+    font-weight: 600; 
+}
+#myPhoto {
+    height: 150px;
+    border-radius: 150px;
+    opacity: 0.8;
+    transition-duration: 0.3s;
+}
+#myPhoto:hover {
+    opacity: 1;
+}
+#author i {
+  opacity: 0.4;
+}
+#author a {
+    text-decoration: none;
+    color: black !important;
+    opacity: 0.4;
+}
+
+.contentSeparator.upSeparator {
+    margin-top: -50px;
+}
+.contentSeparator.downSeparator {
+    margin-bottom: -50px;
+}
+
+.contentSeparator {
+    width: 100%;
+    height: 50px;
+    z-index: 20;
+    pointer-events: none;
+}
+.contentSeparator > path {
+    fill: #FBFBFB;
+}

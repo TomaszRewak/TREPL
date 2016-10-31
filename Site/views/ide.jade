@@ -1,0 +1,119 @@
+﻿doctype html
+html(lang='en')
+  head
+    title TREPL - #{name}
+    meta(name='description', content=description)
+    meta(name='keywords', content='algorithms datastructures')
+    meta(name='author', content='Tomasz Rewak')
+    meta(name='application-name', charset='TREPL')
+    meta(charset='utf-8')
+    link(rel='stylesheet', href='/stylesheets/ide.css', type='text/css')
+    script(src='/javascripts/jquery/jquery-2.1.3.min.js')
+    script(src='/javascripts/jquery/jquery-ui-1.11.3.min.js')
+    script(src='/javascripts/jquery/jquery-touch.js')
+    script(src='/javascripts/basic/FileServer.js')
+    link(rel='stylesheet', href='/stylesheets/glympthicons/css/bootstrap.css', type='text/css')
+  body
+    #loadingScreen
+      #loadingModal
+        h2
+          | Loading...
+        h6
+          | It will stay this way, if your browser doesn't support javascript ;)
+    #siteContent(style='display: none')
+      #topBar
+        #run_button.topBarItem.topBarButton.labeledItem
+          span.glyphicon.glyphicon-play(aria-hidden='true')
+          .label Run your program
+        #step_button.topBarItem.topBarButton.labeledItem
+          span.glyphicon.glyphicon-step-forward(aria-hidden='true')
+          .label Step
+        #pause_button.topBarItem.topBarButton.labeledItem
+          span.glyphicon.glyphicon-pause(aria-hidden='true')
+          .label Pause program execution
+        #clear_button.topBarItem.topBarButton.labeledItem
+          span.glyphicon.glyphicon-stop(aria-hidden='true')
+          .label Stop execution and clear memory
+        .topBarSeparator
+        .topBarItem.labeledItem
+          | Speed
+          #speedSliderPlaceholder
+          .label Set speed of execution
+        a#facebookButton.topBarItem.topBarButton.labeledItem(href='https://www.facebook.com/pages/TRE/440521379467836', target='_blank')
+          | facebook
+          .label Follow me on facebook
+        form#donateButton.topBarItem.topBarButton.labeledItem(action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank" onclick="this.submit()")
+          input(type="hidden" name="cmd" value="_s-xclick")
+          input(type="hidden" name="hosted_button_id" value="USUR8CPL56B2Y")
+          | donate
+          .label Help me keep this portal going
+        a.topBarItem.topBarButton.labeledItem(href='https://github.com/TomaszRewak/TREPL', target='_blank')
+          | github
+          .label Source code of this website
+        #help.topBarItem.topBarButton.labeledItem
+          span.glyphicon.glyphicon-question-sign(aria-hidden='true')
+          .label Help
+        a#home_button.topBarItem.topBarButton.labeledItem(href='/')
+          span.glyphicon.glyphicon-home(aria-hidden='true')
+          .label Home
+      #topBarSeparator
+      #IDE
+        #IDEPartMenu.IDEPart
+        #IDEPartProgram.IDEPart
+          #codeField.IDEPartPage
+            .IDEPartName
+              #trash.IDEPartHeaderButton.labeledItem
+                span.glyphicon.glyphicon-trash(aria-hidden='true')
+                p trash
+                .label Drop an element here to get rid of it
+              .IDEPartNameText Your code
+              #clear_programm_button.IDEPartHeaderButton.right.labeledItem
+                p clear
+                span.glyphicon.glyphicon-refresh(aria-hidden='true')
+                .label Clear entire code
+            .IDEPartContent.codeHolder
+          #previewCodeField.IDEPartPage(style='display: none;')
+            .IDEPartName.IDEPartNamePreview
+              | Preview
+            .IDEPartContent.codeHolder
+          #descriptionIDEPart.IDEPartPage(style='display: none;')
+            .IDEPartName.IDEPartNameDescription
+              | Preview
+            #descriptionIDEPartContent.IDEPartContent
+              .descriptionElement
+              .descriptionText
+              .descriptionExample
+              .descriptionHint
+        #IDEPartMemory.IDEPart
+          .IDEPartPage
+            .IDEPartName
+              .IDEPartHeaderButton.labeledItem
+                #tempStackCheckBox
+                p temporary values
+                .label Show temporary stack
+              .IDEPartNameText Memory
+            #memory.IDEPartContent
+              #memoryPartTempStakc.memoryPart
+                #tempStack.memoryPartContent
+              #memoryPartStack.memoryPart
+                #stack.memoryPartContent
+              #memoryPartHeap.memoryPart
+                .memoryPartName
+                  | Heap
+                #heap.memoryPartContent
+      #console
+        #consoleLog
+        #consoleInputHolder
+          #consolePrompt >
+          #consoleInput(contenteditable='true')
+          #consoleSubimt Submit
+    script.
+      window.lesson = !{JSON.stringify(lesson)};
+      window.navigationTree = !{JSON.stringify(navigationTree)};
+    script(src='/javascripts/site.js')
+    script.
+      $(function () {
+      $('#loadingScreen').hide();
+      $('#siteContent').show();
+      });
+    script(src='/javascripts/analytics.js')

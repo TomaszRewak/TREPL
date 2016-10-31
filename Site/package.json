@@ -1,0 +1,24 @@
+{
+  "name": "site.trepl.xyz",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "author": "Tomasz Rewak",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "cookie-parser": "^1.4.3",
+    "debug": "^2.2.0",
+    "express": "^4.14.0",
+    "express-session": "^1.14.1",
+    "jade": "^1.11.0",
+    "morgan": "^1.7.0",
+    "mysql": "^2.11.1",
+    "passport": "^0.3.2",
+    "passport-local": "^1.0.0",
+    "serve-favicon": "^2.3.0",
+    "stylus": "^0.54.5",
+    "tedious": "^1.14.0",
+    "underscore": "^1.8.3"
+  }
+}

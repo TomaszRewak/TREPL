@@ -1,0 +1,263 @@
+﻿{
+	"element": "Program",
+	"params": [
+		[
+			{
+				"element": "BaseClassDefinition",
+				"params": [
+					"Stack",
+					[
+						{
+							"element": "VariableImplicitDefinition",
+							"params": [
+								"value",
+								{
+									"element": "RawData",
+									"params": [ "0" ],
+									"visible": true
+								}
+							],
+							"visible": true
+						},
+						{
+							"element": "ReferenceDeclaration",
+							"params": [
+								"next",
+								{
+									"element": "RawData",
+									"params": [ "Stack" ],
+									"visible": true
+								}
+							],
+							"visible": true
+						}
+					]
+				],
+				"visible": true
+			},
+			{
+				"element": "ReferenceDeclaration",
+				"params": [
+					"top",
+					{
+						"element": "RawData",
+						"params": [ "Stack" ],
+						"visible": true
+					}
+				],
+				"visible": true
+			},
+			{
+				"element": "ForLoop",
+				"params": [
+					{
+						"element": "VariableImplicitDefinition",
+						"params": [
+							"i",
+							{
+								"element": "RawData",
+								"params": [ "0" ],
+								"visible": true
+							}
+						],
+						"visible": true
+					},
+					{
+						"element": "Less",
+						"params": [
+							{
+								"element": "RawData",
+								"params": [ "i" ],
+								"visible": true
+							},
+							{
+								"element": "RawData",
+								"params": [ "5" ],
+								"visible": true
+							}
+						],
+						"visible": true
+					},
+					{
+						"element": "Increment",
+						"params": [
+							{
+								"element": "RawData",
+								"params": [ "i" ],
+								"visible": true
+							}
+						],
+						"visible": true
+					},
+					[
+						{
+							"element": "ReferenceDefinition",
+							"params": [
+								"newTop",
+								{
+									"element": "RawData",
+									"params": [ "Stack" ],
+									"visible": true
+								},
+								{
+									"element": "NewHeapObject",
+									"params": [
+										{
+											"element": "RawData",
+											"params": [ "Stack" ],
+											"visible": true
+										},
+										[]
+									],
+									"visible": true
+								}
+							],
+							"visible": true
+						},
+						{
+							"element": "Set",
+							"params": [
+								{
+									"element": "Path",
+									"params": [
+										{
+											"element": "RawData",
+											"params": [ "newTop" ],
+											"visible": true
+										},
+										"next"
+									],
+									"visible": true
+								},
+								{
+									"element": "RawData",
+									"params": [ "top" ],
+									"visible": true
+								}
+							],
+							"visible": true
+						},
+						{
+							"element": "Set",
+							"params": [
+								{
+									"element": "Path",
+									"params": [
+										{
+											"element": "RawData",
+											"params": [ "newTop" ],
+											"visible": true
+										},
+										"value"
+									],
+									"visible": true
+								},
+								{
+									"element": "RawData",
+									"params": [ "i" ],
+									"visible": true
+								}
+							],
+							"visible": true
+						},
+						{
+							"element": "Set",
+							"params": [
+								{
+									"element": "RawData",
+									"params": [ "top" ],
+									"visible": true
+								},
+								{
+									"element": "RawData",
+									"params": [ "newTop" ],
+									"visible": true
+								}
+							],
+							"visible": true
+						}
+					]
+				],
+				"visible": true
+			},
+			{
+				"element": "ForLoop",
+				"params": [
+					{
+						"element": "VariableImplicitDefinition",
+						"params": [
+							"i",
+							{
+								"element": "RawData",
+								"params": [ "top" ],
+								"visible": true
+							}
+						],
+						"visible": true
+					},
+					{
+						"element": "NotEqual",
+						"params": [
+							{
+								"element": "RawData",
+								"params": [ "i" ],
+								"visible": true
+							},
+							{
+								"element": "Null",
+								"params": [],
+								"visible": true
+							}
+						],
+						"visible": true
+					},
+					{
+						"element": "Set",
+						"params": [
+							{
+								"element": "RawData",
+								"params": [ "i" ],
+								"visible": true
+							},
+							{
+								"element": "Path",
+								"params": [
+									{
+										"element": "RawData",
+										"params": [ "i" ],
+										"visible": true
+									},
+									"next"
+								],
+								"visible": true
+							}
+						],
+						"visible": true
+					},
+					[
+						{
+							"element": "Print",
+							"params": [
+								{
+									"element": "Path",
+									"params": [
+										{
+											"element": "RawData",
+											"params": [ "i" ],
+											"visible": true
+										},
+										"value"
+									],
+									"visible": true
+								}
+							],
+							"visible": true
+						}
+					]
+				],
+				"visible": true
+			}
+		]
+	],
+	"visible": true
+}

@@ -1,0 +1,18 @@
+﻿doctype html
+html
+  head
+    title= title
+    link(rel='stylesheet', href='/stylesheets/404.css')
+  body
+    #loadingScreen
+      #loadingModal
+        h1
+          | Error 404
+        h2
+          | Page not found - redirecting
+        h6
+          | We are sorry, but we can't find requested page
+  script(type='text/javascript').
+    setTimeout(function(){
+      window.location.href = "/";
+    }, 4000);

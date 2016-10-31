@@ -1,0 +1,26 @@
+{
+	"name": "trepl.xyz",
+	"version": "1.0.4",
+	"description": "TRE is an object oriented, functional programming language, that enables user to view all processes happening inside a memory during program execution.",
+	"author": {
+		"name": "Tomasz Rewak",
+		"email": "tomasz.rewak@gmail.com"
+	},
+	"homepage": "http://trepl.xyz",
+	"keywords": [
+		"Programming language",
+		"Algorithms",
+		"Programing paradigms"
+	],
+	"license": "MIT",
+	"devDependencies": {
+		"fs": "0.0.2",
+		"gulp": "^3.9.1",
+		"gulp-header": "^1.8.8",
+		"gulp-less": "^3.1.0",
+		"gulp-typescript": "^2.13.6",
+		"gulp-uglify": "^1.5.4",
+		"path": "^0.12.7",
+		"typescript": "^1.8.10"
+	}
+}
