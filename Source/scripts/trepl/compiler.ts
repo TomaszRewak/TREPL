@@ -34,6 +34,7 @@
 /// <reference path="Elements/NewObject.ts" />
 /// <reference path="Elements/Null.ts" />
 /// <reference path="Elements/Path.ts" />
+/// <reference path="Elements/PathRef.ts" />
 /// <reference path="Elements/Program.ts" />
 /// <reference path="Elements/Random.ts" />
 /// <reference path="Elements/RawData.ts" />

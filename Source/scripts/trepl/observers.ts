@@ -1,6 +1,5 @@
 ﻿module TypeSystemObserver {
-    export interface ObjectObserver extends GUI.GUIElement {
-    }
+
     export class VoidObjectObserver implements ObjectObserver {
         constructor(private object: TS.VoidObject) { }
         private element: JQuery;
@@ -450,11 +449,6 @@ module MemoryObservers {
             else
                 this.element.addClass('onStackElementHidden');
         }
-    }
-    export interface MemoryFieldObserver {
-        getElement(): JQuery;
-        setFieldValue(value: TS.Obj);
-        updateUI();
     }
     export class StackFieldObserver implements MemoryFieldObserver {
         constructor(private field: Memory.StackField) {

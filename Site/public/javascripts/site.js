@@ -618,10 +618,13 @@ var L;
             }
         }
         errorIfNotInstance(typ, element) {
-            this.errorIfNot(typ instanceof TS.InstanceType, 'Expected type instance', element);
+            this.errorIfNot(typ instanceof TS.InstanceType, 'Expected a type instance', element);
         }
         errorIfNotPrototype(typ, element) {
-            this.errorIfNot(typ instanceof TS.PrototypeType, 'Expected type prototype', element);
+            this.errorIfNot(typ instanceof TS.PrototypeType, 'Expected a type prototype', element);
+        }
+        errorIfNotReference(typ, element) {
+            this.errorIfNot(typ instanceof TS.ReferenceType, 'Expected a reference', element);
         }
         setAsInternalOperation() {
             this.defalutOperation = Operation.internal(this);
@@ -2506,13 +2509,13 @@ var E;
         getJSONName() { return 'Print'; }
     }
     E.Print = Print;
-    class Scan extends Operator1 {
+    class Read extends Operator1 {
         constructor(a = null) {
-            super(Scan, 'scan', false, a, true);
+            super(Read, 'read', false, a, true);
         }
-        getJSONName() { return 'Scan'; }
+        getJSONName() { return 'Read'; }
     }
-    E.Scan = Scan;
+    E.Read = Read;
     class Not extends Operator1 {
         constructor(a = null) {
             super(Not, '!', false, a);
@@ -2919,8 +2922,6 @@ var L;
             if (!this.cs)
                 return false;
             var leftType = this.log_left.returns.varType;
-            while (leftType instanceof TS.ReferenceType && !leftType.hasMethod(this.name))
-                leftType = leftType.prototypeType.referencedPrototypeType.declaresType();
             this.innerContext = leftType;
             var leftPrototype = leftType.prototypeType;
             if (leftPrototype instanceof TS.ClassType) {
@@ -2944,13 +2945,6 @@ var L;
             yield* this.log_left.run(environment);
             var isAlias = environment.isTempValueAlias();
             var thisMemoryField = environment.popTempValue();
-            while (thisMemoryField.getValue() instanceof TS.Reference && !thisMemoryField.getValue().hasMethod(this.name)) {
-                var reference = thisMemoryField.getValue().reference;
-                if (!reference)
-                    throw 'Null reference exception';
-                thisMemoryField = reference;
-                isAlias = true;
-            }
             var valueLeft = thisMemoryField.getValue();
             if (valueLeft instanceof TS.ClassObject) {
                 if (valueLeft.hasFieldValue(this.name)) {
@@ -3002,6 +2996,100 @@ var E;
         }
     }
     E.Path = Path;
+})(E || (E = {}));
+var L;
+(function (L) {
+    class PathRef extends L.LogicElement {
+        constructor(log_left, name) {
+            super();
+            this.log_left = log_left;
+            this.name = name;
+        }
+        _compile(environment) {
+            this.errorIfEmpty(this.log_left);
+            this.cs = this.log_left.compile(environment) && this.cs;
+            if (!this.cs)
+                return false;
+            this.errorIfNotReference(this.log_left.returns.varType, this.log_left);
+            if (!this.cs)
+                return false;
+            var leftType = this.log_left.returns.varType.prototypeType.referencedPrototypeType.declaresType();
+            this.innerContext = leftType;
+            var leftPrototype = leftType.prototypeType;
+            if (leftPrototype instanceof TS.ClassType) {
+                this.errorIfNot(leftPrototype.hasField(this.name) || leftPrototype.hasMethod(this.name), 'None field nor method of this name was found');
+                if (!this.cs)
+                    return false;
+                if (leftPrototype.hasField(this.name))
+                    this.returns = new TS.LValueOfType(leftPrototype.fields[this.name].typ);
+                else
+                    this.returns = new TS.RValueOfType(leftPrototype.functions[this.name].declaresType());
+            }
+            else {
+                this.errorIfNot(leftPrototype.hasMethod(this.name), 'None method for this name was found');
+                if (!this.cs)
+                    return false;
+                this.returns = new TS.RValueOfType(leftPrototype.functions[this.name].declaresType());
+            }
+            return this.cs;
+        }
+        *execute(environment) {
+            yield* this.log_left.run(environment);
+            var isAlias = true;
+            var thisMemoryField = environment.popTempValue().getValue().reference;
+            if (!thisMemoryField)
+                throw 'Null reference exception';
+            var valueLeft = thisMemoryField.getValue();
+            if (valueLeft instanceof TS.ClassObject) {
+                if (valueLeft.hasFieldValue(this.name)) {
+                    var customTypeField = valueLeft.getFieldValue(this.name);
+                    environment.pushTempAlias(customTypeField);
+                }
+                else if (valueLeft.hasMethod(this.name)) {
+                    var method = valueLeft.getMethod(thisMemoryField, this.name, isAlias);
+                    environment.pushTempValue(method);
+                }
+                else {
+                    throw 'No such field or method was for this object';
+                }
+            }
+            else {
+                if (valueLeft.hasMethod(this.name)) {
+                    var method = valueLeft.getMethod(thisMemoryField, this.name, isAlias);
+                    environment.pushTempValue(method);
+                }
+                else {
+                    throw 'No such field or method was for this object';
+                }
+            }
+            yield L.Operation.tempMemory(this);
+            return;
+        }
+    }
+    L.PathRef = PathRef;
+})(L || (L = {}));
+var E;
+(function (E) {
+    class PathRef extends E.Element {
+        constructor(element = null, name = 'foo') {
+            super();
+            this.c_left = new C.DropField(this, element);
+            this.c_right = new C.PenetratingTextField(this, name);
+            this.initialize([
+                [this.c_left, new C.Label('->'), this.c_right]
+            ], E.ElementType.Type);
+        }
+        getJSONName() { return 'PathRef'; }
+        constructCode() {
+            var logic = new L.PathRef(this.c_left.constructCode(), this.c_right.getRawData());
+            logic.setObserver(this);
+            return logic;
+        }
+        getCopy() {
+            return new PathRef(this.c_left.getContentCopy(), this.c_right.getRawData()).copyMetadata(this);
+        }
+    }
+    E.PathRef = PathRef;
 })(E || (E = {}));
 var L;
 (function (L) {
@@ -4454,99 +4542,6 @@ var MemoryObservers;
     }
     MemoryObservers.HeapFieldObserver = HeapFieldObserver;
 })(MemoryObservers || (MemoryObservers = {}));
-var DS;
-(function (DS) {
-    class Stack {
-        constructor() {
-            this.tail = null;
-        }
-        static empty() {
-            return null;
-        }
-        static push(element, stack) {
-            if (!stack)
-                stack = null;
-            var newNode = new Stack();
-            newNode.top = element;
-            newNode.tail = stack;
-            return newNode;
-        }
-        static pop(stack) {
-            return stack.tail;
-        }
-        static top(stack) {
-            if (!stack)
-                throw 'Empty stack exception';
-            return stack.top;
-        }
-        static remove(element, stack) {
-            if (!stack)
-                return Stack.empty();
-            if (stack.top == element)
-                return stack.tail;
-            stack.tail = Stack.remove(element, stack);
-            return stack;
-        }
-        static forAll(stack, operation) {
-            if (stack) {
-                operation(stack.top);
-                Stack.forAll(stack.tail, operation);
-            }
-        }
-    }
-    DS.Stack = Stack;
-    class Scope {
-        constructor() {
-            this.stack = Stack.empty();
-        }
-    }
-    DS.Scope = Scope;
-    class StackMap {
-        constructor() {
-            this.map = {};
-            this.scopes = null;
-        }
-        addScope(scope) {
-            this.scopes = Stack.push(scope, this.scopes);
-        }
-        removeScope() {
-            if (!this.scopes)
-                throw 'No scope to remove';
-            var oldScope = this.scopes.top;
-            this.scopes = this.scopes.tail;
-            var scopeToRemove = oldScope.stack;
-            while (scopeToRemove) {
-                var name = scopeToRemove.top.name;
-                this.map[name] = this.map[name].tail;
-                scopeToRemove = scopeToRemove.tail;
-            }
-            return oldScope;
-        }
-        addElement(value) {
-            this.map[value.name] = Stack.push(value, this.map[value.name]);
-            this.scopes.top.stack = Stack.push(value, this.scopes.top.stack);
-        }
-        getScope() {
-            return this.scopes.top;
-        }
-        getScopes() {
-            return this.scopes;
-        }
-        getElement(name) {
-            if (this.map[name])
-                return this.map[name].top;
-            else
-                return null;
-        }
-        hasElement(name) {
-            return !!this.map[name];
-        }
-        hasScope() {
-            return !!this.scopes;
-        }
-    }
-    DS.StackMap = StackMap;
-})(DS || (DS = {}));
 var Memory;
 (function (Memory) {
     var MO = MemoryObservers;
@@ -6948,14 +6943,15 @@ var MenuInflater;
         new Helper('void', new E.Void(), Serializer.deserialize({ "element": "Program", "params": [[{ "element": "Function", "params": ["addAndPrint", [{ "element": "VariableDeclaration", "params": ["a", { "element": "Int", "params": [], "visible": true }], "visible": true }, { "element": "VariableDeclaration", "params": ["b", { "element": "Int", "params": [], "visible": true }], "visible": true }], { "element": "Void", "params": [], "visible": true }, [{ "element": "Print", "params": [{ "element": "Add", "params": [{ "element": "RawData", "params": ["a"], "visible": true }, { "element": "RawData", "params": ["b"], "visible": true }], "visible": true }], "visible": true }]], "visible": true }]], "visible": true }), 'Void', 'An empty type.'),
         new Helper('class', new E.BaseClassDefinition(), Serializer.deserialize({ "element": "Program", "params": [[{ "element": "BaseClassDefinition", "params": ["Class", [{ "element": "VariableDeclaration", "params": ["a", { "element": "Int", "params": [], "visible": true }], "visible": true }, { "element": "VariableImplicitDefinition", "params": ["b", { "element": "RawData", "params": ["10"], "visible": true }], "visible": true }, { "element": "Function", "params": ["setA", [{ "element": "VariableDeclaration", "params": ["x", { "element": "Int", "params": [], "visible": true }], "visible": true }], { "element": "Void", "params": [], "visible": true }, [{ "element": "Set", "params": [{ "element": "Path", "params": [{ "element": "RawData", "params": ["this"], "visible": true }, "a"], "visible": true }, { "element": "RawData", "params": ["x"], "visible": true }], "visible": true }]], "visible": true }]], "visible": true }, { "element": "VariableDeclaration", "params": ["foo", { "element": "RawData", "params": ["Class"], "visible": true }], "visible": true }, { "element": "FunctionCall", "params": [{ "element": "Path", "params": [{ "element": "RawData", "params": ["foo"], "visible": true }, "setA"], "visible": true }, [{ "element": "RawData", "params": ["15"], "visible": true }]], "visible": true }, { "element": "Set", "params": [{ "element": "Path", "params": [{ "element": "RawData", "params": ["foo"], "visible": true }, "b"], "visible": true }, { "element": "RawData", "params": ["31"], "visible": true }], "visible": true }]], "visible": true }), 'Class definition', 'Creates a class which consists of the given set of fields and methods. You can create objects of this clas, which then you can use as every other values.'),
         new Helper('.', new E.Path(), Serializer.deserialize({ "element": "Program", "params": [[{ "element": "BaseClassDefinition", "params": ["Class", [{ "element": "VariableDeclaration", "params": ["a", { "element": "Int", "params": [], "visible": true }], "visible": true }, { "element": "VariableImplicitDefinition", "params": ["b", { "element": "RawData", "params": ["10"], "visible": true }], "visible": true }, { "element": "Function", "params": ["setA", [{ "element": "VariableDeclaration", "params": ["x", { "element": "Int", "params": [], "visible": true }], "visible": true }], { "element": "Void", "params": [], "visible": true }, [{ "element": "Set", "params": [{ "element": "Path", "params": [{ "element": "RawData", "params": ["this"], "visible": true }, "a"], "visible": true }, { "element": "RawData", "params": ["x"], "visible": true }], "visible": true }]], "visible": true }]], "visible": true }, { "element": "VariableDeclaration", "params": ["foo", { "element": "RawData", "params": ["Class"], "visible": true }], "visible": true }, { "element": "FunctionCall", "params": [{ "element": "Path", "params": [{ "element": "RawData", "params": ["foo"], "visible": true }, "setA"], "visible": true }, [{ "element": "RawData", "params": ["15"], "visible": true }]], "visible": true }, { "element": "Set", "params": [{ "element": "Path", "params": [{ "element": "RawData", "params": ["foo"], "visible": true }, "b"], "visible": true }, { "element": "RawData", "params": ["31"], "visible": true }], "visible": true }]], "visible": true }), 'Path', 'Returns an alias to the specific field (or method) of the provided object.'),
+        new Helper('->', new E.PathRef(), Serializer.deserialize({ "element": "Program", "params": [[{ "element": "BaseClassDefinition", "params": ["Class", [{ "element": "VariableDeclaration", "params": ["a", { "element": "Int", "params": [], "visible": true }], "visible": true }, { "element": "VariableImplicitDefinition", "params": ["b", { "element": "RawData", "params": ["10"], "visible": true }], "visible": true }, { "element": "Function", "params": ["setA", [{ "element": "VariableDeclaration", "params": ["x", { "element": "Int", "params": [], "visible": true }], "visible": true }], { "element": "Void", "params": [], "visible": true }, [{ "element": "Set", "params": [{ "element": "Path", "params": [{ "element": "RawData", "params": ["this"], "visible": true }, "a"], "visible": true }, { "element": "RawData", "params": ["x"], "visible": true }], "visible": true }]], "visible": true }]], "visible": true }, { "element": "VariableDeclaration", "params": ["foo", { "element": "RawData", "params": ["Class"], "visible": true }], "visible": true }, { "element": "FunctionCall", "params": [{ "element": "Path", "params": [{ "element": "RawData", "params": ["foo"], "visible": true }, "setA"], "visible": true }, [{ "element": "RawData", "params": ["15"], "visible": true }]], "visible": true }, { "element": "Set", "params": [{ "element": "Path", "params": [{ "element": "RawData", "params": ["foo"], "visible": true }, "b"], "visible": true }, { "element": "RawData", "params": ["31"], "visible": true }], "visible": true }]], "visible": true }), 'Dereferencing path', 'Returns an alias to the specific field (or method) of the object pointed by reference.'),
         new Helper('ref', new E.Ref(), Serializer.deserialize({ "element": "Program", "params": [[{ "element": "Function", "params": ["newInt", [], { "element": "Ref", "params": [{ "element": "Int", "params": [], "visible": true }], "visible": true }, [{ "element": "Return", "params": [{ "element": "NewHeapObject", "params": [{ "element": "Int", "params": [], "visible": true }, []], "visible": true }], "visible": true }]], "visible": true }, { "element": "ReferenceDefinition", "params": ["foo", { "element": "Int", "params": [], "visible": true }, { "element": "FunctionCall", "params": [{ "element": "RawData", "params": ["newInt"], "visible": true }, []], "visible": true }], "visible": true }]], "visible": true }), 'Reference', 'The reference type.'),
         new Helper('[]', new E.Array(), Serializer.deserialize({ "element": "Program", "params": [[{ "element": "VariableDeclaration", "params": ["foo", { "element": "Array", "params": [{ "element": "Int", "params": [], "visible": true }, "4"], "visible": true }], "visible": true }]], "visible": true }), 'Array', 'The array type.'),
         new Helper('type of', new E.TypeOf(), Serializer.deserialize({ "element": "Program", "params": [[{ "element": "VariableDeclaration", "params": ["a", { "element": "Int", "params": [], "visible": true }], "visible": true }, { "element": "VariableDeclaration", "params": ["b", { "element": "TypeOf", "params": [{ "element": "RawData", "params": ["a"], "visible": true }], "visible": true }], "visible": true }]], "visible": true }), 'Type of', 'Returns the type of the value.'),
     ];
     var otherHelpers = [
-        new Helper('print', new E.Print(), Serializer.deserialize({ "element": "Program", "params": [[{ "element": "Print", "params": [{ "element": "StringLiteral", "params": ["Your name:"], "visible": true }], "visible": true }, { "element": "VariableDeclaration", "params": ["name", { "element": "String", "params": [], "visible": true }], "visible": true }, { "element": "Scan", "params": [{ "element": "RawData", "params": ["name"], "visible": true }], "visible": true }, { "element": "Print", "params": [{ "element": "Add", "params": [{ "element": "StringLiteral", "params": ["Your name is "], "visible": true }, { "element": "RawData", "params": ["name"], "visible": true }], "visible": true }], "visible": true }]], "visible": true }), 'Print', 'Prints given value to console'),
-        new Helper('scan', new E.Scan(), Serializer.deserialize({ "element": "Program", "params": [[{ "element": "Print", "params": [{ "element": "StringLiteral", "params": ["Your name:"], "visible": true }], "visible": true }, { "element": "VariableDeclaration", "params": ["name", { "element": "String", "params": [], "visible": true }], "visible": true }, { "element": "Scan", "params": [{ "element": "RawData", "params": ["name"], "visible": true }], "visible": true }, { "element": "Print", "params": [{ "element": "Add", "params": [{ "element": "StringLiteral", "params": ["Your name is "], "visible": true }, { "element": "RawData", "params": ["name"], "visible": true }], "visible": true }], "visible": true }]], "visible": true }), 'Scan', 'Scans value from input and assings it to the variable'),
-        new Helper('//', new E.Comment(), Serializer.deserialize({ "element": "Program", "params": [[{ "element": "Comment", "params": ["Name of the user"], "visible": true }, { "element": "VariableDeclaration", "params": ["name", { "element": "String", "params": [], "visible": true }], "visible": true }, { "element": "Comment", "params": ["Surname of the user"], "visible": true }, { "element": "VariableDeclaration", "params": ["surname", { "element": "String", "params": [], "visible": true }], "visible": true }, { "element": "Comment", "params": ["Scanning name and surname"], "visible": true }, { "element": "Scan", "params": [{ "element": "RawData", "params": ["name"], "visible": true }], "visible": true }, { "element": "Scan", "params": [{ "element": "RawData", "params": ["surname"], "visible": true }], "visible": true }]], "visible": true }), 'Comment', 'Single line, text comment'),
+        new Helper('print', new E.Print(), Serializer.deserialize({ "element": "Program", "params": [[{ "element": "Print", "params": [{ "element": "StringLiteral", "params": ["Your name:"], "visible": true }], "visible": true }, { "element": "VariableDeclaration", "params": ["name", { "element": "String", "params": [], "visible": true }], "visible": true }, { "element": "Read", "params": [{ "element": "RawData", "params": ["name"], "visible": true }], "visible": true }, { "element": "Print", "params": [{ "element": "Add", "params": [{ "element": "StringLiteral", "params": ["Your name is "], "visible": true }, { "element": "RawData", "params": ["name"], "visible": true }], "visible": true }], "visible": true }]], "visible": true }), 'Print', 'Prints given value to console'),
+        new Helper('read', new E.Read(), Serializer.deserialize({ "element": "Program", "params": [[{ "element": "Print", "params": [{ "element": "StringLiteral", "params": ["Your name:"], "visible": true }], "visible": true }, { "element": "VariableDeclaration", "params": ["name", { "element": "String", "params": [], "visible": true }], "visible": true }, { "element": "Read", "params": [{ "element": "RawData", "params": ["name"], "visible": true }], "visible": true }, { "element": "Print", "params": [{ "element": "Add", "params": [{ "element": "StringLiteral", "params": ["Your name is "], "visible": true }, { "element": "RawData", "params": ["name"], "visible": true }], "visible": true }], "visible": true }]], "visible": true }), 'Read', 'Reads a value from the input and assings it to the variable'),
+        new Helper('//', new E.Comment(), Serializer.deserialize({ "element": "Program", "params": [[{ "element": "Comment", "params": ["Name of the user"], "visible": true }, { "element": "VariableDeclaration", "params": ["name", { "element": "String", "params": [], "visible": true }], "visible": true }, { "element": "Comment", "params": ["Surname of the user"], "visible": true }, { "element": "VariableDeclaration", "params": ["surname", { "element": "String", "params": [], "visible": true }], "visible": true }, { "element": "Comment", "params": ["Reading name and surname"], "visible": true }, { "element": "Read", "params": [{ "element": "RawData", "params": ["name"], "visible": true }], "visible": true }, { "element": "Read", "params": [{ "element": "RawData", "params": ["surname"], "visible": true }], "visible": true }]], "visible": true }), 'Comment', 'Single line, text comment'),
         new Helper('/**/', new E.MultilineComment(), Serializer.deserialize({ "element": "Program", "params": [[{ "element": "BaseClassDefinition", "params": ["Stack", [{ "element": "VariableImplicitDefinition", "params": ["value", { "element": "RawData", "params": ["0"], "visible": false }], "visible": false }, { "element": "ReferenceDeclaration", "params": ["next", { "element": "RawData", "params": ["Stack"], "visible": false }], "visible": false }]], "visible": false }, { "element": "ReferenceDeclaration", "params": ["top", { "element": "RawData", "params": ["Stack"], "visible": true }], "visible": true }, { "element": "ForLoop", "params": [{ "element": "VariableImplicitDefinition", "params": ["i", { "element": "RawData", "params": ["0"], "visible": true }], "visible": true }, { "element": "Less", "params": [{ "element": "RawData", "params": ["i"], "visible": true }, { "element": "RawData", "params": ["5"], "visible": true }], "visible": true }, { "element": "Increment", "params": [{ "element": "RawData", "params": ["i"], "visible": true }], "visible": true }, [{ "element": "ReferenceDefinition", "params": ["newTop", { "element": "RawData", "params": ["Stack"], "visible": true }, { "element": "NewHeapObject", "params": [{ "element": "RawData", "params": ["Stack"], "visible": true }, []], "visible": true }], "visible": true }, { "element": "Set", "params": [{ "element": "Path", "params": [{ "element": "RawData", "params": ["newTop"], "visible": true }, "next"], "visible": true }, { "element": "RawData", "params": ["top"], "visible": true }], "visible": true }, { "element": "MultilineComment", "params": [[{ "element": "Comment", "params": ["This part of code will not execute"], "visible": true }, { "element": "Set", "params": [{ "element": "Path", "params": [{ "element": "RawData", "params": ["newTop"], "visible": true }, "value"], "visible": true }, { "element": "RawData", "params": ["i"], "visible": true }], "visible": true }, { "element": "Set", "params": [{ "element": "RawData", "params": ["top"], "visible": true }, { "element": "RawData", "params": ["newTop"], "visible": true }], "visible": true }]], "visible": true }]], "visible": true }]], "visible": true }), 'Comment', 'Multiline line comment'),
     ];
     MenuInflater.allHelpers = [].concat(valueHelpers, flowHelpers, variableHelpers, mathHelpers, typeHelpers, otherHelpers, functionHelpers);

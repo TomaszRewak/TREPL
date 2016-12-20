@@ -2,15 +2,7 @@
     import TSO = TypeSystemObserver;
 
     //////////////////////// Additional ////////////////////////
-    export interface StaticResult {
-        varType: TS.Type
-    }
-    export class RValueOfType implements StaticResult {
-        constructor(public varType: TS.Type) { }
-    }
-    export class LValueOfType extends RValueOfType { }
-    export function rValue(type: TS.Type): RValueOfType { return new RValueOfType(type); }
-    export function lValue(type: TS.Type): LValueOfType { return new LValueOfType(type); }
+
 
     export class EnclosedValue extends L.IDeclaration {
         constructor(public name: string, private value: TS.Obj) {
@@ -75,77 +67,7 @@
     }
 
     //////////////////////// Objects ////////////////////////
-    export class Obj {
-        observer: TSO.ObjectObserver;
-        public getCopy(): Obj { return new Obj(); }
-    }
-    export class Type {
-        getTypeName(): string {
-            return "";
-        }
-        assignalbeTo(second: Type): boolean {
-            return false;
-        }
-    }
-
-    export class Instance extends Obj {
-        constructor(public prototype: Prototype) {
-            super();
-        }
-        public hasMethod(name: string): boolean {
-            return this.prototype.functions[name] != null;
-        }
-        public getMethod(thisField: Memory.MemoryField, name: string, alaisedThis: boolean): FunctionObject {
-            return new Method(thisField, this.prototype.functions[name], alaisedThis);
-        }
-        public getCopy(): Obj { return this.prototype.defaultValue(); }
-        public *construct(environment: Memory.Environment): IterableIterator<L.Operation> {
-            return;
-        }
-    }
-    export class InstanceType extends Type {
-        constructor(public prototypeType: PrototypeType) {
-            super();
-        }
-        hasMethod(name: string): boolean {
-            return this.prototypeType.hasMethod(name);
-        }
-        getTypeName(): string {
-            return this.prototypeType.instanceName;
-        }
-    }
-
-    export class Prototype extends Obj {
-        observer = new TSO.PrototypeObserver(this);
-        constructor(
-            public functions: { [name: string]: FunctionObject }
-		) {
-            super();
-        }
-        public getCopy(): Prototype {
-            return new Prototype(this.functions);
-        }
-        defaultValue(): Instance {
-            return new Instance(this);
-        }
-    }
-    export class PrototypeType extends Type {
-        constructor(
-            public instanceName: string,
-            public functions: { [name: string]: FunctionClassType }
-		) {
-            super();
-        }
-        hasMethod(name: string): boolean {
-            return this.functions[name] != null;
-        }
-        declaresType(): InstanceType {
-            return new InstanceType(this);
-        }
-        getTypeName(): string {
-            return 'type ' + this.instanceName;
-        }
-    }
+   
 
     export class ClassField extends Memory.MemoryField implements DS.INamed {
         observer = new TSO.ClassFieldObserver(this);

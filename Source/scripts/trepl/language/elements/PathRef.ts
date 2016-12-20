@@ -1,21 +1,19 @@
 ﻿module L {
-    export class Path extends LogicElement {
+    export class PathRef extends LogicElement {
         constructor(
             public log_left: LogicElement,
             public name: string
-            ) { super(); }
+		) { super(); }
 
         _compile(environment: Compiler.TypeEnvironment) {
             this.errorIfEmpty(this.log_left);
             this.cs = this.log_left.compile(environment) && this.cs;
             if (!this.cs) return false;
 
-            this.errorIfNotInstance(this.log_left.returns.varType, this.log_left);
+			this.errorIfNotReference(this.log_left.returns.varType, this.log_left);
             if (!this.cs) return false;
 
-            var leftType = <TS.InstanceType> this.log_left.returns.varType;
-            while (leftType instanceof TS.ReferenceType && !leftType.hasMethod(this.name))
-                leftType = (<TS.ReferenceType> leftType).prototypeType.referencedPrototypeType.declaresType();
+            var leftType = (<TS.ReferenceType>(<TS.InstanceType>this.log_left.returns.varType)).prototypeType.referencedPrototypeType.declaresType();
 
             this.innerContext = leftType;
 
@@ -42,15 +40,11 @@
         *execute(environment: Memory.Environment): IterableIterator<Operation> {
             yield* this.log_left.run(environment);
 
-            var isAlias = environment.isTempValueAlias();
-            var thisMemoryField = environment.popTempValue();
-            while (thisMemoryField.getValue() instanceof TS.Reference && !(<TS.Instance> thisMemoryField.getValue()).hasMethod(this.name)) {
-                var reference = (<TS.Reference> thisMemoryField.getValue()).reference;
-                if (!reference) throw 'Null reference exception';
-                thisMemoryField = reference;
-                isAlias = true;
-            }
-            var valueLeft = <TS.Instance> thisMemoryField.getValue();
+            var isAlias = true;
+            var thisMemoryField = (<TS.Reference>environment.popTempValue().getValue()).reference;
+			if (!thisMemoryField) throw 'Null reference exception';
+
+            var valueLeft = <TS.Instance>thisMemoryField.getValue();
 
             if (valueLeft instanceof TS.ClassObject) {
                 if (valueLeft.hasFieldValue(this.name)) {
@@ -83,8 +77,8 @@
 }
 
 module E {
-    export class Path extends Element {
-        getJSONName() { return 'Path' }
+    export class PathRef extends Element {
+        getJSONName() { return 'PathRef' }
         c_left: C.DropField
         c_right: C.PenetratingTextField
         constructor(element: E.Element = null, name = 'foo') {
@@ -92,19 +86,19 @@ module E {
             this.c_left = new C.DropField(this, element)
             this.c_right = new C.PenetratingTextField(this, name)
             this.initialize([
-                [this.c_left, new C.Label('.'), this.c_right]
+                [this.c_left, new C.Label('->'), this.c_right]
             ], ElementType.Type);
         }
         constructCode(): L.LogicElement {
-            var logic = new L.Path(
+            var logic = new L.PathRef(
                 this.c_left.constructCode(),
                 this.c_right.getRawData()
-                );
+			);
             logic.setObserver(this);
             return logic;
         }
         getCopy(): Element {
-            return new Path(
+            return new PathRef(
                 this.c_left.getContentCopy(),
                 this.c_right.getRawData()).copyMetadata(this);
         }

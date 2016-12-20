@@ -194,10 +194,13 @@
             }
         }
         errorIfNotInstance(typ: TS.Type, element: LogicElement) {
-            this.errorIfNot(typ instanceof TS.InstanceType, 'Expected type instance', element);
+            this.errorIfNot(typ instanceof TS.InstanceType, 'Expected a type instance', element);
         }
         errorIfNotPrototype(typ: TS.Type, element: LogicElement) {
-            this.errorIfNot(typ instanceof TS.PrototypeType, 'Expected type prototype', element);
+            this.errorIfNot(typ instanceof TS.PrototypeType, 'Expected a type prototype', element);
+        }
+        errorIfNotReference(typ: TS.Type, element: LogicElement) {
+            this.errorIfNot(typ instanceof TS.ReferenceType, 'Expected a reference', element);
         }
 
         defalutOperation: Operation = null;

@@ -112,10 +112,10 @@ module E {
         }
     }
 
-    export class Scan extends Operator1 {
-        getJSONName() { return 'Scan' }
+    export class Read extends Operator1 {
+        getJSONName() { return 'Read' }
         constructor(a: E.Element = null) {
-            super(Scan, 'scan', false, a, true);
+            super(Read, 'read', false, a, true);
         }
     }
 

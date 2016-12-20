@@ -441,6 +441,12 @@
             'Path',
             'Returns an alias to the specific field (or method) of the provided object.'),
         new Helper(
+            '->',
+            new E.PathRef(),
+            Serializer.deserialize({ "element": "Program", "params": [[{ "element": "BaseClassDefinition", "params": ["Class", [{ "element": "VariableDeclaration", "params": ["a", { "element": "Int", "params": [], "visible": true }], "visible": true }, { "element": "VariableImplicitDefinition", "params": ["b", { "element": "RawData", "params": ["10"], "visible": true }], "visible": true }, { "element": "Function", "params": ["setA", [{ "element": "VariableDeclaration", "params": ["x", { "element": "Int", "params": [], "visible": true }], "visible": true }], { "element": "Void", "params": [], "visible": true }, [{ "element": "Set", "params": [{ "element": "Path", "params": [{ "element": "RawData", "params": ["this"], "visible": true }, "a"], "visible": true }, { "element": "RawData", "params": ["x"], "visible": true }], "visible": true }]], "visible": true }]], "visible": true }, { "element": "VariableDeclaration", "params": ["foo", { "element": "RawData", "params": ["Class"], "visible": true }], "visible": true }, { "element": "FunctionCall", "params": [{ "element": "Path", "params": [{ "element": "RawData", "params": ["foo"], "visible": true }, "setA"], "visible": true }, [{ "element": "RawData", "params": ["15"], "visible": true }]], "visible": true }, { "element": "Set", "params": [{ "element": "Path", "params": [{ "element": "RawData", "params": ["foo"], "visible": true }, "b"], "visible": true }, { "element": "RawData", "params": ["31"], "visible": true }], "visible": true }]], "visible": true }),
+            'Dereferencing path',
+            'Returns an alias to the specific field (or method) of the object pointed by reference.'),
+        new Helper(
             'ref',
             new E.Ref(),
             Serializer.deserialize({ "element": "Program", "params": [[{ "element": "Function", "params": ["newInt", [], { "element": "Ref", "params": [{ "element": "Int", "params": [], "visible": true }], "visible": true }, [{ "element": "Return", "params": [{ "element": "NewHeapObject", "params": [{ "element": "Int", "params": [], "visible": true }, []], "visible": true }], "visible": true }]], "visible": true }, { "element": "ReferenceDefinition", "params": ["foo", { "element": "Int", "params": [], "visible": true }, { "element": "FunctionCall", "params": [{ "element": "RawData", "params": ["newInt"], "visible": true }, []], "visible": true }], "visible": true }]], "visible": true }),
@@ -464,19 +470,19 @@
         new Helper(
             'print',
             new E.Print(),
-            Serializer.deserialize({ "element": "Program", "params": [[{ "element": "Print", "params": [{ "element": "StringLiteral", "params": ["Your name:"], "visible": true }], "visible": true }, { "element": "VariableDeclaration", "params": ["name", { "element": "String", "params": [], "visible": true }], "visible": true }, { "element": "Scan", "params": [{ "element": "RawData", "params": ["name"], "visible": true }], "visible": true }, { "element": "Print", "params": [{ "element": "Add", "params": [{ "element": "StringLiteral", "params": ["Your name is "], "visible": true }, { "element": "RawData", "params": ["name"], "visible": true }], "visible": true }], "visible": true }]], "visible": true }),
+            Serializer.deserialize({ "element": "Program", "params": [[{ "element": "Print", "params": [{ "element": "StringLiteral", "params": ["Your name:"], "visible": true }], "visible": true }, { "element": "VariableDeclaration", "params": ["name", { "element": "String", "params": [], "visible": true }], "visible": true }, { "element": "Read", "params": [{ "element": "RawData", "params": ["name"], "visible": true }], "visible": true }, { "element": "Print", "params": [{ "element": "Add", "params": [{ "element": "StringLiteral", "params": ["Your name is "], "visible": true }, { "element": "RawData", "params": ["name"], "visible": true }], "visible": true }], "visible": true }]], "visible": true }),
             'Print',
             'Prints given value to console'),
         new Helper(
-            'scan',
-            new E.Scan(),
-            Serializer.deserialize({ "element": "Program", "params": [[{ "element": "Print", "params": [{ "element": "StringLiteral", "params": ["Your name:"], "visible": true }], "visible": true }, { "element": "VariableDeclaration", "params": ["name", { "element": "String", "params": [], "visible": true }], "visible": true }, { "element": "Scan", "params": [{ "element": "RawData", "params": ["name"], "visible": true }], "visible": true }, { "element": "Print", "params": [{ "element": "Add", "params": [{ "element": "StringLiteral", "params": ["Your name is "], "visible": true }, { "element": "RawData", "params": ["name"], "visible": true }], "visible": true }], "visible": true }]], "visible": true }),
-            'Scan',
-            'Scans value from input and assings it to the variable'),
+            'read',
+            new E.Read(),
+            Serializer.deserialize({ "element": "Program", "params": [[{ "element": "Print", "params": [{ "element": "StringLiteral", "params": ["Your name:"], "visible": true }], "visible": true }, { "element": "VariableDeclaration", "params": ["name", { "element": "String", "params": [], "visible": true }], "visible": true }, { "element": "Read", "params": [{ "element": "RawData", "params": ["name"], "visible": true }], "visible": true }, { "element": "Print", "params": [{ "element": "Add", "params": [{ "element": "StringLiteral", "params": ["Your name is "], "visible": true }, { "element": "RawData", "params": ["name"], "visible": true }], "visible": true }], "visible": true }]], "visible": true }),
+            'Read',
+            'Reads a value from the input and assings it to the variable'),
         new Helper(
             '//',
             new E.Comment(),
-            Serializer.deserialize({ "element": "Program", "params": [[{ "element": "Comment", "params": ["Name of the user"], "visible": true }, { "element": "VariableDeclaration", "params": ["name", { "element": "String", "params": [], "visible": true }], "visible": true }, { "element": "Comment", "params": ["Surname of the user"], "visible": true }, { "element": "VariableDeclaration", "params": ["surname", { "element": "String", "params": [], "visible": true }], "visible": true }, { "element": "Comment", "params": ["Scanning name and surname"], "visible": true }, { "element": "Scan", "params": [{ "element": "RawData", "params": ["name"], "visible": true }], "visible": true }, { "element": "Scan", "params": [{ "element": "RawData", "params": ["surname"], "visible": true }], "visible": true }]], "visible": true }),
+            Serializer.deserialize({ "element": "Program", "params": [[{ "element": "Comment", "params": ["Name of the user"], "visible": true }, { "element": "VariableDeclaration", "params": ["name", { "element": "String", "params": [], "visible": true }], "visible": true }, { "element": "Comment", "params": ["Surname of the user"], "visible": true }, { "element": "VariableDeclaration", "params": ["surname", { "element": "String", "params": [], "visible": true }], "visible": true }, { "element": "Comment", "params": ["Reading name and surname"], "visible": true }, { "element": "Read", "params": [{ "element": "RawData", "params": ["name"], "visible": true }], "visible": true }, { "element": "Read", "params": [{ "element": "RawData", "params": ["surname"], "visible": true }], "visible": true }]], "visible": true }),
             'Comment',
             'Single line, text comment'),
         new Helper(
