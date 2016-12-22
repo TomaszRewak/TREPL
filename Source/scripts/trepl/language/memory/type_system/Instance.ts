@@ -1,16 +1,18 @@
-﻿import { Object, Type } from './Base'
+﻿import { Obj, Type } from './Base'
+import { Prototype, PrototypeType } from './Prototype'
+import { MemoryField } from '../memory_fields/MemoryField'
 
-export class Instance extends Object {
+export class InstanceObj extends Obj {
 	constructor(public prototype: Prototype) {
 		super();
 	}
 	public hasMethod(name: string): boolean {
 		return this.prototype.functions[name] != null;
 	}
-	public getMethod(thisField: Memory.MemoryField, name: string, alaisedThis: boolean): FunctionObject {
+	public getMethod(thisField: MemoryField, name: string, alaisedThis: boolean): FunctionObject {
 		return new Method(thisField, this.prototype.functions[name], alaisedThis);
 	}
-	public getCopy(): Object { return this.prototype.defaultValue(); }
+	public getCopy(): Obj { return this.prototype.defaultValue(); }
 	public *construct(environment: Memory.Environment): IterableIterator<L.Operation> {
 		return;
 	}

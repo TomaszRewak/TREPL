@@ -1,8 +1,8 @@
 ﻿import { ObjectObserver } from '../../observers/ObjectObserver'
 
-export class Object {
+export class Obj {
 	observer: ObjectObserver;
-	public getCopy(): Object { return new Object(); }
+	public getCopy(): Obj { return new Obj(); }
 }
 
 export class Type {

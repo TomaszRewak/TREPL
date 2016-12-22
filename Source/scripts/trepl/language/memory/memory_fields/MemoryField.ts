@@ -1,33 +1,35 @@
 ﻿import { Stack } from '../data_structures/Stack'
 import { MemoryFieldObserver } from '../../observers/MemoryFieldObserver'
+import { Obj } from '../type_system/Base'
+import { ReferenceObj } from '../type_system/Reference'
 
 export class MemoryField {
-	protected value: TS.Obj;
-	private references: Stack<TS.Reference> = Stack.empty();
+	protected value: Obj;
+	private references: Stack<ReferenceObj> = Stack.empty();
 
 	observer: MemoryFieldObserver;
 
 	constructor() { }
 
-	setValue(val: TS.Obj): MemoryField {
+	setValue(val: Obj): MemoryField {
 		this.value = val;
 		this.observer.setFieldValue(val);
 		return this;
 	}
 
-	getValue(): TS.Obj {
+	getValue(): Obj {
 		return this.value;
 	}
 
-	referencedBy(ref: TS.Reference) {
+	referencedBy(ref: ReferenceObj) {
 		this.references = Stack.push(ref, this.references);
 	}
 
-	unreferencedBy(ref: TS.Reference) {
+	unreferencedBy(ref: ReferenceObj) {
 		this.references = Stack.remove(ref, this.references);
 	}
 
-	getReferences(): Stack<TS.Reference> {
+	getReferences(): Stack<ReferenceObj> {
 		return this.references;
 	}
 }
