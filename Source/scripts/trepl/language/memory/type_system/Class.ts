@@ -62,17 +62,6 @@ export class ClassType extends PrototypeType {
 	}
 }
 
-export class BaseClassObj extends ClassObj {
-	constructor(
-		classType: ClassType,
-		functions: { [name: string]: FunctionObj }) {
-		super(classType, {}, functions);
-	}
-	getObjectOfValue(value: any): BaseClassObject {
-		return new BaseClassObject(this, value);
-	}
-}
-
 export class ClassInstanceObj extends InstanceObj {
 	observer: TSO.ObjectObserver = new TSO.ClassObjectObserver(this);
 	fields: { [id: string]: ClassInstanceField } = {};
@@ -127,25 +116,5 @@ export class ClassInstanceType extends InstanceType {
 	) { super(prototypeType); }
 	assignalbeTo(second: InstanceType): boolean {
 		return (second instanceof ClassInstanceType) && (this.prototypeType == second.prototypeType);
-	}
-}
-
-export class VoidObject extends ClassInstanceObj {
-	observer = new TSO.VoidObjectObserver(this);
-	constructor(public prototye: ClassObj) {
-		super(prototye);
-	}
-	public getCopy(): VoidObject {
-		return new VoidObject(this.prototye);
-	}
-}
-
-export class BaseClassObject extends ClassInstanceObj {
-	observer = new TSO.BaseClassObjectObserver(this);
-	constructor(public prototye: BaseClassObj, public rawValue) {
-		super(prototye);
-	}
-	public getCopy(): BaseClassObject {
-		return new BaseClassObject(this.prototye, this.rawValue);
 	}
 }

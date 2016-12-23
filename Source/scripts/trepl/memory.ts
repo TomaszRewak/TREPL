@@ -155,19 +155,7 @@
         Continue,
     }
 
-    export class StackField extends MemoryField implements DS.INamed {
-        observer = new MO.StackFieldObserver(this);
-        constructor(public name: string) {
-            super();
-        } 
-    }
-
-    export class TempStackField extends MemoryField {
-        observer = new MO.TempStackFieldObserver(this);
-        constructor(public level: number) {
-            super();
-        }
-    }
+    
     export class AliasTempStackField extends TempStackField {
         observer = new MO.TempStackFieldObserver(this);
         constructor(public level: number) {
