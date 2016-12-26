@@ -774,7 +774,7 @@ module GUI {
         })
     }
 
-    class Console {
+	class Console /*extends Console*/ {
         private _console: Scrollable;
         private _button: JQuery = $('#consoleSubimt');
         private _input: JQuery = $('#consoleInput');
@@ -820,19 +820,19 @@ module GUI {
 
             return holder;
         }
-        print(message: string): JQuery {
+        print(message: string) {
             return this.addMessage(message, '\|').animate({ backgroundColor: '#C0C0C0' }, 100).animate({ backgroundColor: 'transparent' }, 1000);
         }
-        input(message: string): JQuery {
+        input(message: string) {
             return this.addMessage(message, '>');
         }
-        printError(message: string): JQuery {
+        printError(message: string) {
             return this.print(message).css('color', 'red');
         }
-        printSuccess(message: string): JQuery {
+        printSuccess(message: string) {
             return this.print(message).css('color', 'green');
         }
-        printInternalMessage(message: string): JQuery {
+        printInternalMessage(message: string) {
             return this.print(message).css('color', 'gray');
         }
         clear() {

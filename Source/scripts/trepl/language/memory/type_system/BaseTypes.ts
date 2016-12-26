@@ -106,7 +106,7 @@ function _base_printMethod(formatter = (a) => a): FunctionObj {
 			GUI.getConsole().print(formatter(a.rawValue));
 		});
 }
-function _base_scanMethod(formatter = (a) => a): FunctionObj {
+function _base_readMethod(formatter = (a) => a): FunctionObj {
 	return new FunctionObj(
 		new FunctionClassObj(),
 		[],
@@ -157,7 +157,7 @@ export class BooleanClassObj extends BaseClassObj {
 			classInstance.functions['print'] = _base_printMethod((a) => {
 				return a ? 'true' : 'false';
 			});
-			classInstance.functions['scan'] = _base_scanMethod((a) => {
+			classInstance.functions['read'] = _base_readMethod((a) => {
 				return a && a != 'false' && a != 'False';
 			});
 
@@ -226,7 +226,7 @@ export class IntClassObj extends BaseClassObj {
 			classInstance.functions['>'] = _base_typeToTypeMethodOperation((a, b) => a > b, BooleanClassObj.classInstance);
 			classInstance.functions['>='] = _base_typeToTypeMethodOperation((a, b) => a >= b, BooleanClassObj.classInstance);
 			classInstance.functions['print'] = _base_printMethod();
-			classInstance.functions['scan'] = _base_scanMethod((a) => {
+			classInstance.functions['read'] = _base_readMethod((a) => {
 				var numberValue = parseInt(a);
 				if (isNaN(numberValue))
 					numberValue = 0;
@@ -311,7 +311,7 @@ export class StringClassObj extends BaseClassObj {
 			classInstance.functions['+'] = _base_typeToTypeMethodOperation((a, b) => a + b, classInstance);
 			classInstance.functions['length'] = _base_toTypeMethodOperation((a) => a.length, IntClassObj.classInstance);
 			classInstance.functions['print'] = _base_printMethod();
-			classInstance.functions['scan'] = _base_scanMethod();
+			classInstance.functions['read'] = _base_readMethod();
 
 			this.typeInstance = typeInstance;
 			this.objectTypeInstance = objectTypeInstance;
