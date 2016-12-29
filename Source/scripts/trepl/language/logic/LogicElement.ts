@@ -1,19 +1,16 @@
-﻿import { LogicElementObserver, EmptyLogicElementObserver } from '../observers/LogicElementObserver'
-import { StaticResult, LValue, RValue } from '../memory/type_system/StaticResult'
-import { PrototypeType } from '../memory/type_system/Prototype'
-import { InstanceType } from '../memory/type_system/Instance'
-import { ReferenceType } from '../memory/type_system/Reference'
-import { Type } from '../memory/type_system/Base'
+﻿import * as TypeSystem from '../type_system'
+import * as Observers from '../observers'
 import { Operation } from '../flow/Operation'
+import { Executable } from '../flow/Executable'
 
-export class LogicElement {
+export abstract class LogicElement implements Executable {
 	// Sets observer
-	protected observer: LogicElementObserver = new EmptyLogicElementObserver();
-	setObserver(observer: LogicElementObserver) {
+	protected observer: Observers.LogicElementObserver = new Observers.EmptyLogicElementObserver();
+	setObserver(observer: Observers.LogicElementObserver) {
 		this.observer = observer;
 		this.observer.clearErrors();
 	}
-	getObserver(): LogicElementObserver {
+	getObserver(): Observers.LogicElementObserver {
 		return this.observer;
 	}
 	// Makes static evaluation and returs the result of it (called be parent)
@@ -55,12 +52,12 @@ export class LogicElement {
 	}
 	flowState: Compiler.FlowState = Compiler.FlowState.Normal;
 	// static evaluation product
-	returns: StaticResult = new RValue(new TS.ClassObjectType(TS.Void.typeInstance));
-	returnsType(): Type {
+	returns: TypeSystem.StaticResult = new TypeSystem.RValue(new TypeSystem.ClassInstanceType(TypeSystem.VoidClassObj.typeInstance));
+	returnsType(): TypeSystem.Type {
 		return this.returns.varType;
 	}
 	// context - in case of for example path element, the inner context of this element is the type of element on the left side of the dot.
-	innerContext: Type;
+	innerContext: TypeSystem.Type;
 	// Logic components for tags
 	logicComponents: { [tag: string]: LogicElement[] } = {};
 	// Called during code execution by the parent element
@@ -81,16 +78,14 @@ export class LogicElement {
 		}
 
 		if (!environment.hasValueOnCurrentLevel())
-			environment.pushTempValue(TS.Void.classInstance.defaultValue());
+			environment.pushTempValue(TypeSystem.VoidClassObj.classInstance.defaultValue());
 
 		environment.removeTempScope();
 
 		return;
 	}
 	// Executes code inside
-	protected *execute(environment: Memory.Environment): IterableIterator<Operation> {
-		return;
-	}
+	abstract execute(environment: Memory.Environment): IterableIterator<Operation>;
 
 	protected static *executeBlock(environment: Memory.Environment, list: LogicElement[]) {
 		for (var i = 0; i < list.length; i++) {
@@ -128,8 +123,8 @@ export class LogicElement {
 			this.error('This field cannot be empty', element);
 		}
 	}
-	errorIfTypeMismatch(expected: StaticResult, found: StaticResult, element: LogicElement) {
-		if ((expected instanceof LValue) && !(found instanceof LValue)) {
+	errorIfTypeMismatch(expected: TypeSystem.StaticResult, found: TypeSystem.StaticResult, element: LogicElement) {
+		if ((expected instanceof TypeSystem.LValue) && !(found instanceof TypeSystem.LValue)) {
 			this.error(
 				'Type mismatch: expected L-Value of type"' + expected.varType.getTypeName() + '", but found R-Value of type"' + found.varType.getTypeName() + '"',
 				element);
@@ -142,14 +137,14 @@ export class LogicElement {
 			}
 		}
 	}
-	errorIfNotInstance(typ: Type, element: LogicElement) {
-		this.errorIfNot(typ instanceof InstanceType, 'Expected a type instance', element);
+	errorIfNotInstance(typ: TypeSystem.Type, element: LogicElement) {
+		this.errorIfNot(typ instanceof TypeSystem.InstanceType, 'Expected a type instance', element);
 	}
-	errorIfNotPrototype(typ: Type, element: LogicElement) {
-		this.errorIfNot(typ instanceof PrototypeType, 'Expected a type prototype', element);
+	errorIfNotPrototype(typ: TypeSystem.Type, element: LogicElement) {
+		this.errorIfNot(typ instanceof TypeSystem.PrototypeType, 'Expected a type prototype', element);
 	}
-	errorIfNotReference(typ: Type, element: LogicElement) {
-		this.errorIfNot(typ instanceof ReferenceType, 'Expected a reference', element);
+	errorIfNotReference(typ: TypeSystem.Type, element: LogicElement) {
+		this.errorIfNot(typ instanceof TypeSystem.ReferenceType, 'Expected a reference', element);
 	}
 
 	defalutOperation: Operation = null;

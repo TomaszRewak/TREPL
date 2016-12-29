@@ -1,6 +1,6 @@
-﻿import {Scope} from './Scope'
-import {INamed} from './INamed'
-import {Stack} from './Stack'
+﻿import { Scope } from './Scope'
+import { INamed } from './INamed'
+import { Stack } from './Stack'
 
 // Stack of scopes (to be easly removed)
 export class StackMap<T extends INamed, S extends Scope<any>> {

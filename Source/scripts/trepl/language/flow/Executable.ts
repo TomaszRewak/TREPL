@@ -1,4 +1,9 @@
-﻿import { LogicElement } from './LogicElement'
+﻿import * as Compiler from '../compiler/Compiler'
+import * as Environment from '../environment/Environment'
+
+export interface Executable {
+	execute(environment: Environment.Environment): IterableIterator<Operation>;
+}
 
 export enum OperationType {
 	MemoryOperation,
@@ -11,24 +16,24 @@ export enum OperationType {
 }
 
 export class Operation {
-	constructor(public operationType: OperationType, public element: LogicElement) { }
+	constructor(public operationType: OperationType, public element: Executable) { }
 
-	static memory(element: LogicElement): Operation {
+	static memory(element: Executable): Operation {
 		return new Operation(OperationType.MemoryOperation, element);
 	}
-	static tempMemory(element: LogicElement): Operation {
+	static tempMemory(element: Executable): Operation {
 		return new Operation(OperationType.TempMemoryOperation, element);
 	}
-	static internal(element: LogicElement): Operation {
+	static internal(element: Executable): Operation {
 		return new Operation(OperationType.InternalOperation, element);
 	}
-	static flow(element: LogicElement): Operation {
+	static flow(element: Executable): Operation {
 		return new Operation(OperationType.FlowOperation, element);
 	}
 	static wait(): Operation {
 		return new Operation(OperationType.WaitOperation, null);
 	}
-	static other(element: LogicElement): Operation {
+	static other(element: Executable): Operation {
 		return new Operation(OperationType.OtherOperation, element);
 	}
 }

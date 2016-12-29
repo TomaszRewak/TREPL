@@ -1,7 +1,7 @@
-﻿import { Scope } from '../data_structures/Scope'
+﻿import * as DataStructures from '../data_structures'
 import { StackField } from './StackField'
 
-export class StackScope extends Scope<StackField> {
+export class StackScope extends DataStructures.Scope<StackField> {
 	observer = new MO.ScopeObserver(this);
 	constructor(public name: string) { super(); }
 }

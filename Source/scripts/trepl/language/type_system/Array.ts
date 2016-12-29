@@ -1,9 +1,9 @@
 ﻿import { PrototypeObj, PrototypeType } from './Prototype'
 import { InstanceObj, InstanceType } from './Instance'
-import { MemoryField } from '../memory_fields/MemoryField'
+import * as MemoryFields from '../memory_fields'
 import { Obj, Type } from './Base'
 
-export class ArrayField extends MemoryField {
+export class ArrayField extends MemoryFields.MemoryField {
 	observer = new TSO.ArrayFieldObserver(this);
 	constructor(value: Obj, public index: number) {
 		super();
@@ -59,7 +59,7 @@ export class ArrayObject extends InstanceObj {
 			this.values[i] = memoryField;
 		}
 	}
-	public getField(index: number): MemoryField {
+	public getField(index: number): MemoryFields.MemoryField {
 		return this.values[index];
 	}
 	public getCopy(): ArrayObject { // TODO: copy also actual values

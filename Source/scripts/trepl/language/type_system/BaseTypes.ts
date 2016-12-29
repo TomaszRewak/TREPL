@@ -1,14 +1,14 @@
-﻿import { Type } from './Base'
-import { FunctionObj, FunctionType, FunctionClassObj, FunctionClassType, FunctionParapeterType } from './Function'
+﻿import * as Function from './Function'
+import * as Class from './Class'
+import * as Instance from './Instance'
+import { Type } from './Base'
 import { rValue } from './StaticResult'
-import { ClassObj, ClassType, ClassInstanceType, ClassInstanceObj } from './Class'
-import { ImplicitDeclaration } from '../../flow/Declaration'
-import { Operation } from '../../flow/Operation'
-import { InstanceObj, InstanceType } from './Instance'
+import { ImplicitDeclaration } from '../flow/Declaration'
+import { Operation } from '../flow/Operation'
 
-export class VoidClassInstanceObj extends ClassInstanceObj {
+export class VoidClassInstanceObj extends Class.ClassInstanceObj {
 	observer = new TSO.VoidObjectObserver(this);
-	constructor(public prototye: ClassObj) {
+	constructor(public prototye: Class.ClassObj) {
 		super(prototye);
 	}
 	public getCopy(): VoidClassInstanceObj {
@@ -16,16 +16,16 @@ export class VoidClassInstanceObj extends ClassInstanceObj {
 	}
 }
 
-export class VoidClassObj extends ClassObj {
-	static typeInstance: ClassType = null;
-	static objectTypeInstance: ClassInstanceType = null;
+export class VoidClassObj extends Class.ClassObj {
+	static typeInstance: Class.ClassType = null;
+	static objectTypeInstance: Class.ClassInstanceType = null;
 	static classInstance: VoidClassObj = null;
 
 	private static initialized = false;
 	static initialize() {
 		if (!VoidClassObj.initialized) {
-			var typeInstance: ClassType = new ClassType({}, {}, 'void');
-			var objectTypeInstance = new ClassInstanceType(typeInstance);
+			var typeInstance: Class.ClassType = new Class.ClassType({}, {}, 'void');
+			var objectTypeInstance = new Class.ClassInstanceType(typeInstance);
 
 			typeInstance.functions = {};
 			var classInstance: VoidClassObj = new VoidClassObj(
@@ -40,16 +40,16 @@ export class VoidClassObj extends ClassObj {
 		}
 	}
 
-	defaultValue(): ClassInstanceObj {
+	defaultValue(): Class.ClassInstanceObj {
 		return new VoidClassInstanceObj(this);
 	}
 }
 VoidClassObj.initialize();
 
-export class BaseClassObj extends ClassObj {
+export class BaseClassObj extends Class.ClassObj {
 	constructor(
-		classType: ClassType,
-		functions: { [name: string]: FunctionObj }) {
+		classType: Class.ClassType,
+		functions: { [name: string]: Function.FunctionObj }) {
 		super(classType, {}, functions);
 	}
 	getObjectOfValue(value: any): BaseClassInstanceObj {
@@ -57,7 +57,7 @@ export class BaseClassObj extends ClassObj {
 	}
 }
 
-export class BaseClassInstanceObj extends ClassInstanceObj {
+export class BaseClassInstanceObj extends Class.ClassInstanceObj {
 	observer = new TSO.BaseClassObjectObserver(this);
 	constructor(public prototye: BaseClassObj, public rawValue) {
 		super(prototye);
@@ -67,14 +67,14 @@ export class BaseClassInstanceObj extends ClassInstanceObj {
 	}
 }
 
-function _base_typeToTypeMethodType(type: Type, returns: Type): FunctionClassType {
-	return new FunctionClassType([
-		new FunctionParapeterType('b', rValue(type), false)
+function _base_typeToTypeMethodType(type: Type, returns: Type): Function.FunctionClassType {
+	return new Function.FunctionClassType([
+		new Function.FunctionParapeterType('b', rValue(type), false)
 	], rValue(returns));
 }
 function _base_typeToTypeMethodOperation(operation: (a, b) => any, alocator: BaseClassObj) {
-	return new FunctionObj(
-		new FunctionClassObj(),
+	return new Function.FunctionObj(
+		new Function.FunctionClassObj(),
 		[
 			new ImplicitDeclaration('b', rValue(null), null)
 		],
@@ -84,31 +84,31 @@ function _base_typeToTypeMethodOperation(operation: (a, b) => any, alocator: Bas
 			environment.pushTempValue(alocator.getObjectOfValue(operation(a.rawValue, b.rawValue)));
 		});
 }
-function _base_toTypeMethodType(returns: Type): FunctionClassType {
-	return new FunctionClassType([
+function _base_toTypeMethodType(returns: Type): Function.FunctionClassType {
+	return new Function.FunctionClassType([
 	], rValue(returns));
 }
-function _base_toTypeMethodOperation(operation: (a) => any, alocator: BaseClassObj): FunctionObj {
-	return new FunctionObj(
-		new FunctionClassObj(),
+function _base_toTypeMethodOperation(operation: (a) => any, alocator: BaseClassObj): Function.FunctionObj {
+	return new Function.FunctionObj(
+		new Function.FunctionClassObj(),
 		[],
 		function* (environment) {
 			var a = <BaseClassInstanceObj>environment.getFromStack('this').getValue();
 			environment.pushTempValue(alocator.getObjectOfValue(operation(a.rawValue)));
 		});
 }
-function _base_printMethod(formatter = (a) => a): FunctionObj {
-	return new FunctionObj(
-		new FunctionClassObj(),
+function _base_printMethod(formatter = (a) => a): Function.FunctionObj {
+	return new Function.FunctionObj(
+		new Function.FunctionClassObj(),
 		[],
 		function* (environment) {
 			var a = <BaseClassInstanceObj>environment.getFromStack('this').getValue();
 			GUI.getConsole().print(formatter(a.rawValue));
 		});
 }
-function _base_readMethod(formatter = (a) => a): FunctionObj {
-	return new FunctionObj(
-		new FunctionClassObj(),
+function _base_readMethod(formatter = (a) => a): Function.FunctionObj {
+	return new Function.FunctionObj(
+		new Function.FunctionClassObj(),
 		[],
 		function* (environment) {
 			var a = <BaseClassInstanceObj>environment.getFromStack('this').getValue();
@@ -128,15 +128,15 @@ function _base_readMethod(formatter = (a) => a): FunctionObj {
 }
 
 export class BooleanClassObj extends BaseClassObj {
-	static typeInstance: ClassType = null;
-	static objectTypeInstance: ClassInstanceType = null;
+	static typeInstance: Class.ClassType = null;
+	static objectTypeInstance: Class.ClassInstanceType = null;
 	static classInstance: BooleanClassObj = null;
 
 	private static initialized = false;
 	static initialize() {
 		if (!BooleanClassObj.initialized) {
-			var typeInstance: ClassType = new ClassType({}, {}, 'boolean');
-			var objectTypeInstance: ClassInstanceType = new ClassInstanceType(typeInstance);
+			var typeInstance: Class.ClassType = new Class.ClassType({}, {}, 'boolean');
+			var objectTypeInstance: Class.ClassInstanceType = new Class.ClassInstanceType(typeInstance);
 
 			var classInstance: BooleanClassObj = new BooleanClassObj(typeInstance, {});
 
@@ -172,22 +172,22 @@ export class BooleanClassObj extends BaseClassObj {
 	getObjectOfValue(value: boolean): BaseClassInstanceObj {
 		return new BaseClassInstanceObj(this, value);
 	}
-	defaultValue(): InstanceObj {
+	defaultValue(): Instance.InstanceObj {
 		return this.getObjectOfValue(false);
 	}
 }
 BooleanClassObj.initialize();
 
 export class IntClassObj extends BaseClassObj {
-	static typeInstance: ClassType = null;
-	static objectTypeInstance: ClassInstanceType = null;
+	static typeInstance: Class.ClassType = null;
+	static objectTypeInstance: Class.ClassInstanceType = null;
 	static classInstance: IntClassObj = null;
 
 	private static initialized = false;
 	static initialize() {
 		if (!IntClassObj.initialized) {
-			var typeInstance: ClassType = new ClassType({}, {}, 'number');
-			var objectTypeInstance: ClassInstanceType = new ClassInstanceType(typeInstance);
+			var typeInstance: Class.ClassType = new Class.ClassType({}, {}, 'number');
+			var objectTypeInstance: Class.ClassInstanceType = new Class.ClassInstanceType(typeInstance);
 			var classInstance: IntClassObj = new IntClassObj(typeInstance, {});
 
 			var _intToIntType = _base_typeToTypeMethodType(objectTypeInstance, objectTypeInstance);
@@ -232,8 +232,8 @@ export class IntClassObj extends BaseClassObj {
 					numberValue = 0;
 				return numberValue;
 			});
-			classInstance.functions['++'] = new FunctionObj(
-				new FunctionClassObj(),
+			classInstance.functions['++'] = new Function.FunctionObj(
+				new Function.FunctionClassObj(),
 				[],
 				function* (environment) {
 					var a = <BaseClassInstanceObj>environment.getFromStack('this').getValue();
@@ -241,8 +241,8 @@ export class IntClassObj extends BaseClassObj {
 					environment.pushTempValue(classInstance.getObjectOfValue(a.rawValue));
 					a.observer.updateUI();
 				});
-			classInstance.functions['--'] = new FunctionObj(
-				new FunctionClassObj(),
+			classInstance.functions['--'] = new Function.FunctionObj(
+				new Function.FunctionClassObj(),
 				[],
 				function* (environment) {
 					var a = <BaseClassInstanceObj>environment.getFromStack('this').getValue();
@@ -250,8 +250,8 @@ export class IntClassObj extends BaseClassObj {
 					environment.pushTempValue(classInstance.getObjectOfValue(a.rawValue));
 					a.observer.updateUI();
 				});
-			classInstance.functions['_++'] = new FunctionObj(
-				new FunctionClassObj(),
+			classInstance.functions['_++'] = new Function.FunctionObj(
+				new Function.FunctionClassObj(),
 				[],
 				function* (environment) {
 					var a = <BaseClassInstanceObj>environment.getFromStack('this').getValue();
@@ -259,8 +259,8 @@ export class IntClassObj extends BaseClassObj {
 					a.rawValue++;
 					a.observer.updateUI();
 				});
-			classInstance.functions['_--'] = new FunctionObj(
-				new FunctionClassObj(),
+			classInstance.functions['_--'] = new Function.FunctionObj(
+				new Function.FunctionClassObj(),
 				[],
 				function* (environment) {
 					var a = <BaseClassInstanceObj>environment.getFromStack('this').getValue();
@@ -280,22 +280,22 @@ export class IntClassObj extends BaseClassObj {
 	getObjectOfValue(value: number): BaseClassInstanceObj {
 		return new BaseClassInstanceObj(this, value);
 	}
-	defaultValue(): InstanceObj {
+	defaultValue(): Instance.InstanceObj {
 		return this.getObjectOfValue(0);
 	}
 }
 IntClassObj.initialize();
 
 export class StringClassObj extends BaseClassObj {
-	static typeInstance: ClassType = null;
-	static objectTypeInstance: ClassInstanceType = null;
+	static typeInstance: Class.ClassType = null;
+	static objectTypeInstance: Class.ClassInstanceType = null;
 	static classInstance: StringClassObj = null;
 
 	private static initialized = false;
 	static initialize() {
 		if (!StringClassObj.initialized) {
-			var typeInstance: ClassType = new ClassType({}, {}, 'string');
-			var objectTypeInstance: ClassInstanceType = new ClassInstanceType(typeInstance);
+			var typeInstance: Class.ClassType = new Class.ClassType({}, {}, 'string');
+			var objectTypeInstance: Class.ClassInstanceType = new Class.ClassInstanceType(typeInstance);
 			var classInstance: StringClassObj = new StringClassObj(typeInstance, {});
 
 			var _stringToStringType = _base_typeToTypeMethodType(objectTypeInstance, objectTypeInstance);
@@ -324,7 +324,7 @@ export class StringClassObj extends BaseClassObj {
 	getObjectOfValue(value: string): BaseClassInstanceObj {
 		return new BaseClassInstanceObj(this, value);
 	}
-	defaultValue(): InstanceObj {
+	defaultValue(): Instance.InstanceObj {
 		return this.getObjectOfValue("");
 	}
 }

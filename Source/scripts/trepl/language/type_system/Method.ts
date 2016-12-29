@@ -1,10 +1,10 @@
-﻿import { FunctionObj } from './Function'
-import { MemoryField } from '../memory_fields/MemoryField'
+﻿import * as Function from './Function'
+import * as MemoryFields from '../memory_fields'
 
-export class Method extends FunctionObj {
+export class Method extends Function.FunctionObj {
 	constructor(
-		thisField: MemoryField,
-		baseFunction: FunctionObj,
+		thisField: MemoryFields.MemoryField,
+		baseFunction: Function.FunctionObj,
 		alaisedThis: boolean
 	) {
 		var thisValue = alaisedThis ? null : thisField.getValue().getCopy();

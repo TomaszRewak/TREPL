@@ -1,6 +1,6 @@
 ﻿import { StaticResult } from './StaticResult'
-import { InstanceObj, InstanceType } from './Instance'
-import { PrototypeObj, PrototypeType } from './Prototype'
+import * as Instance from './Instance'
+import * as Prototype from './Prototype'
 
 export class FunctionParapeterType {
 	constructor(
@@ -10,13 +10,13 @@ export class FunctionParapeterType {
 	{ }
 }
 
-export class FunctionClassObj extends PrototypeObj {
+export class FunctionClassObj extends Prototype.PrototypeObj {
 	constructor() {
 		super({});
 	}
 }
 
-export class FunctionClassType extends PrototypeType {
+export class FunctionClassType extends Prototype.PrototypeType {
 	constructor(
 		public parameters: FunctionParapeterType[],
 		public returnType: StaticResult
@@ -28,7 +28,7 @@ export class FunctionClassType extends PrototypeType {
 	}
 }
 
-export class FunctionObj extends InstanceObj {
+export class FunctionObj extends Instance.InstanceObj {
 	observer = new TSO.FunctionObserver(this);
 	*call(environment: Memory.Environment, passedArguments: number): IterableIterator<L.Operation> {
 		environment.addScope('Function Call');
@@ -59,7 +59,7 @@ export class FunctionObj extends InstanceObj {
 	}
 }
 
-export class FunctionType extends InstanceType {
+export class FunctionType extends Instance.InstanceType {
 	constructor(
 		public prototypeType: FunctionClassType
 	) { super(prototypeType); }

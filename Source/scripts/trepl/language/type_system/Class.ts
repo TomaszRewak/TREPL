@@ -1,20 +1,20 @@
-﻿import { MemoryField } from '../memory_fields/MemoryField'
-import { INamed } from '../data_structures/INamed'
-import { IDeclaration } from '../../flow/Declaration'
-import { Operation } from '../../flow/Operation'
+﻿import * as MemoryFields from '../memory_fields'
+import * as DataStructures from '../data_structures'
+import * as Instance from './Instance'
+import * as Prototype from './Prototype'
+import * as Function from './Function'
+import { IDeclaration } from '../flow/Declaration'
+import { Operation } from '../flow/Operation'
 import { Obj, Type } from './Base'
-import { InstanceObj, InstanceType } from './Instance'
-import { PrototypeObj, PrototypeType } from './Prototype'
-import { FunctionObj, FunctionClassType } from './Function'
 
-export class ClassField extends MemoryField implements INamed {
+export class ClassField extends MemoryFields.MemoryField implements DataStructures.INamed {
 	observer = new TSO.ClassFieldObserver(this);
 	constructor(public declaration: IDeclaration, public name: string) {
 		super();
 	}
 }
 
-export class ClassInstanceField extends MemoryField implements INamed {
+export class ClassInstanceField extends MemoryFields.MemoryField implements DataStructures.INamed {
 	observer = new TSO.ClassFieldObserver(this);
 	constructor(value: Obj, public name: string) {
 		super();
@@ -30,26 +30,26 @@ export class ClassFieldType {
 	{ }
 }
 
-export class ClassObj extends PrototypeObj {
+export class ClassObj extends Prototype.PrototypeObj {
 	constructor(
 		public classType: ClassType,
 		public fields: { [name: string]: ClassField },
-		functions: { [name: string]: FunctionObj }
+		functions: { [name: string]: Function.FunctionObj }
 	) {
 		super(functions);
 	}
 	public getCopy(): ClassObj {
 		return new ClassObj(this.classType, this.fields, this.functions);
 	}
-	defaultValue(): InstanceObj {
+	defaultValue(): Instance.InstanceObj {
 		return new ClassInstanceObj(this);
 	}
 }
 
-export class ClassType extends PrototypeType {
+export class ClassType extends Prototype.PrototypeType {
 	constructor(
 		public fields: { [name: string]: ClassFieldType },
-		functions: { [name: string]: FunctionClassType },
+		functions: { [name: string]: Function.FunctionClassType },
 		className: string
 	) {
 		super(className, functions);
@@ -62,7 +62,7 @@ export class ClassType extends PrototypeType {
 	}
 }
 
-export class ClassInstanceObj extends InstanceObj {
+export class ClassInstanceObj extends Instance.InstanceObj {
 	observer: TSO.ObjectObserver = new TSO.ClassObjectObserver(this);
 	fields: { [id: string]: ClassInstanceField } = {};
 	constructor(
@@ -106,15 +106,15 @@ export class ClassInstanceObj extends InstanceObj {
 	public hasFieldValue(name: string): boolean {
 		return this.fields[name] != null;
 	}
-	public getFieldValue(name: string): MemoryField {
+	public getFieldValue(name: string): MemoryFields.MemoryField {
 		return this.fields[name];
 	}
 }
-export class ClassInstanceType extends InstanceType {
+export class ClassInstanceType extends Instance.InstanceType {
 	constructor(
 		public prototypeType: ClassType
 	) { super(prototypeType); }
-	assignalbeTo(second: InstanceType): boolean {
+	assignalbeTo(second: Instance.InstanceType): boolean {
 		return (second instanceof ClassInstanceType) && (this.prototypeType == second.prototypeType);
 	}
 }

@@ -1,86 +1,30 @@
-﻿import { LogicElement } from './LogicElement'
-import { Operation } from './Operation'
-import { StaticResult, RValue } from '../memory/type_system/StaticResult'
-import { Obj } from '../memory/type_system/Base'
-import { PrototypeObj } from '../memory/type_system/Prototype'
+﻿import * as MemoryFields from '../memory_fields'
+import * as Environment from '../environment'
+import * as Executable from './Executable'
+import { StaticResult, RValue } from '../type_system/StaticResult'
+import { PrototypeObj } from '../type_system/Prototype'
 
-export class IDeclaration extends LogicElement {
-	constructor(public name: string) {
-		super();
-	}
-	*execute(environment: Memory.Environment): IterableIterator<Operation> {
-		yield* this.createTempValue(environment);
-		yield* this.instantiate(environment);
-		yield Operation.memory(this);
-		return;
-	}
-	*instantiate(environment: Memory.Environment): IterableIterator<Operation> {
-		throw 'abstract class member call';
-	}
-	*createTempValue(environment: Memory.Environment): IterableIterator<Operation> {
-		throw 'abstract class member call';
-	}
-	expectsType: StaticResult;
-}
+//export class IDeclaration implements Executable {
+//	constructor(public name: string) {
+//	}
+//	*execute(environment: Memory.Environment): IterableIterator<Operation> {
+//		yield* this.createTempValue(environment);
+//		yield* this.instantiate(environment);
+//		yield Operation.memory(this);
+//		return;
+//	}
+//	*instantiate(environment: Memory.Environment): IterableIterator<Operation> {
+//		throw 'abstract class member call';
+//	}
+//	*createTempValue(environment: Memory.Environment): IterableIterator<Operation> {
+//		throw 'abstract class member call';
+//	}
+//	expectsType: StaticResult;
+//}
 
-export class EnclosedValue extends IDeclaration {
-	constructor(public name: string, private value: Obj) {
-		super(name);
-		this.value = value.getCopy();
-	}
+export interface IDeclaration extends Executable.Executable {
+	name: string;
 
-	expectsType: StaticResult = null;
-
-	*createTempValue(environment: Memory.Environment): IterableIterator<Operation> {
-		environment.pushTempValue(this.value.getCopy());
-
-		yield Operation.memory(this);
-		return;
-	}
-
-	*instantiate(environment: Memory.Environment): IterableIterator<Operation> {
-		environment.addValueToStack(environment.popTempValue().getValue(), this.name);
-		return;
-	}
-
-	*execute(environment: Memory.Environment): IterableIterator<Operation> {
-		yield* this.createTempValue(environment);
-		yield* this.instantiate(environment);
-		yield Operation.memory(this);
-		return;
-	}
-}
-
-export class ImplicitDeclaration extends IDeclaration {
-	constructor(public name: string, public expectsType: StaticResult, private prototype: PrototypeObj) {
-		super(name);
-	}
-
-	*createTempValue(environment: Memory.Environment): IterableIterator<Operation> {
-		if (this.expectsType instanceof RValue) {
-			environment.pushTempValue(this.prototype.defaultValue());
-		}
-		else {
-			throw 'Cannot declare alias. Alias field has to be defined as well.';
-		}
-		return;
-	}
-
-	*instantiate(environment: Memory.Environment): IterableIterator<Operation> {
-		if (this.expectsType instanceof RValue) {
-			environment.addValueToStack(environment.popTempValue().getValue().getCopy(), this.name);
-		}
-		else {
-			environment.addAliasToStack(environment.popTempValue(), this.name);
-		}
-
-		return;
-	}
-
-	*execute(environment: Memory.Environment): IterableIterator<Operation> {
-		yield* this.createTempValue(environment);
-		yield* this.instantiate(environment);
-		yield Operation.memory(this);
-		return;
-	}
+	createTempValue(environment: Environment.Environment): IterableIterator<Executable.Operation>;
+	instantiate(environment: Environment.Environment): IterableIterator<Executable.Operation>;
 }
