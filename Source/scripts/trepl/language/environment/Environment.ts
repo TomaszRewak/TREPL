@@ -1,5 +1,5 @@
 ﻿import * as DataStructures from '../data_structures'
-import * as MemoryFields from '../memory_fields'
+import * as Memory from '../memory'
 
 export enum FlowState {
 	NormalFlow,
@@ -9,23 +9,23 @@ export enum FlowState {
 }
 
 export class Environment {
-	private stack: DataStructures.StackMap<MemoryFields.StackField, MemoryFields.StackScope> = new DataStructures.StackMap<MemoryFields.StackField, MemoryFields.StackScope>();
+	private stack: DataStructures.StackMap<Memory.StackField, Memory.StackScope> = new DataStructures.StackMap<Memory.StackField, Memory.StackScope>();
 	observer = MO.getEnvironmentObserver();
 
 	constructor() {
 		this.addScope('Environment');
 	}
-	addValueToStack(val: MemoryFields.Value, name: string) {
+	addValueToStack(val: Memory.Value, name: string) {
 		if (this.stack.hasElement(name)) {
 			this.stack.getElement(name).observer.visible(false);
 		}
 
-		var field = new MemoryFields.StackField(name);
+		var field = new Memory.StackField(name);
 		field.setValue(val);
 		this.stack.addElement(field);
 		this.observer.addFieldToStack(field);
 	}
-	getFromStack(name: string): MemoryFields.MemoryField {
+	getFromStack(name: string): Memory.MemoryField {
 		var field = this.stack.getElement(name);
 
 		var dereferenced = field.getValue().dereference();
@@ -34,7 +34,7 @@ export class Environment {
 	addScope(name: string) {
 		if (this.stack.hasScope())
 			this.stack.getScope().observer.visible(false);
-		var scope = new MemoryFields.StackScope(name);
+		var scope = new Memory.StackScope(name);
 		this.stack.addScope(scope);
 		this.observer.addScopeToStack(scope);
 	}
@@ -56,9 +56,9 @@ export class Environment {
 	}
 
 	// Heap
-	private heap: DataStructures.Stack<MemoryFields.HeapField> = null;
-	addToHeap(val: MemoryFields.Value): MemoryFields.HeapField {
-		var field = new MemoryFields.HeapField();
+	private heap: DataStructures.Stack<Memory.HeapField> = null;
+	addToHeap(val: Memory.Value): Memory.HeapField {
+		var field = new Memory.HeapField();
 		field.setValue(val);
 		// TODO?
 		this.heap = DataStructures.Stack.push(field, this.heap);
@@ -69,7 +69,7 @@ export class Environment {
 
 	// Manages scopes for temporery values (like the resault of applying math operatos)
 	private tempStackLevel: number = 0;
-	private tempStackTop: DataStructures.Stack<MemoryFields.TempStackField> = null;
+	private tempStackTop: DataStructures.Stack<Memory.TempStackField> = null;
 	addTempStackScope() {
 		this.tempStackLevel++;
 	}
@@ -86,13 +86,13 @@ export class Environment {
 	hasValueOnCurrentLevel(): boolean {
 		return this.hasTempValue() && this.tempStackTop.top.level == this.tempStackLevel;
 	}
-	pushTempValue(value: MemoryFields.Value) {
-		var newStackField = new MemoryFields.TempStackField(this.tempStackLevel);
+	pushTempValue(value: Memory.Value) {
+		var newStackField = new Memory.TempStackField(this.tempStackLevel);
 		newStackField.setValue(value);
 		this.tempStackTop = DataStructures.Stack.push(newStackField, this.tempStackTop);
 		this.observer.addFieldToTempStack(newStackField);
 	}
-	popTempValue(): MemoryFields.MemoryField {
+	popTempValue(): Memory.MemoryField {
 		var field = DataStructures.Stack.top(this.tempStackTop);
 		this.tempStackTop = DataStructures.Stack.pop(this.tempStackTop);
 		this.observer.removeFieldFromTempStack(field);
@@ -117,28 +117,28 @@ export class Environment {
 	flowState: FlowState = FlowState.NormalFlow;
 
 	// Iterating throuhg all memory field (mostly to be able to update their observers)
-	foreachStackFields(func: (field: MemoryFields.StackField) => any) {
+	foreachStackFields(func: (field: Memory.StackField) => any) {
 		var scopes = this.stack.getScopes();
 		while (scopes) {
 			DataStructures.Stack.forAll(scopes.top.stack, func);
 			scopes = scopes.tail;
 		}
 	}
-	foreachTempStackFields(func: (field: MemoryFields.TempStackField) => any) {
+	foreachTempStackFields(func: (field: Memory.TempStackField) => any) {
 		var tempStack = this.tempStackTop;
 		while (tempStack) {
 			func(tempStack.top);
 			tempStack = tempStack.tail;
 		}
 	}
-	foreachHeapFields(func: (field: MemoryFields.HeapField) => any) {
+	foreachHeapFields(func: (field: Memory.HeapField) => any) {
 		var heap = this.heap;
 		while (heap) {
 			func(heap.top);
 			heap = heap.tail;
 		}
 	}
-	foreachMemoryFields(func: (field: MemoryFields.MemoryField) => any) {
+	foreachMemoryFields(func: (field: Memory.MemoryField) => any) {
 		this.foreachStackFields(func);
 		this.foreachTempStackFields(func);
 		this.foreachHeapFields(func);

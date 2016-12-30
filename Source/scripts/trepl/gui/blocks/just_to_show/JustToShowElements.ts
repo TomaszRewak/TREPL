@@ -5,7 +5,7 @@ import { TextField as TextFieldComponent } from '../components/TextField'
 import { DropField as DropFieldComponent } from '../components/DropField'
 import { DropList as DropListComponent } from '../components/DropList'
 
-export class Label extends Element {
+class Label extends Element {
 	getJSONName() { return '-' }
 	constructor() {
 		super();
@@ -18,7 +18,7 @@ export class Label extends Element {
 		], ElementType.Value);
 	}
 }
-export class Name extends Element {
+class Name extends Element {
 	getJSONName() { return '-' }
 	constructor() {
 		super();
@@ -31,7 +31,7 @@ export class Name extends Element {
 		], ElementType.Value);
 	}
 }
-export class DropField extends Element {
+class DropField extends Element {
 	getJSONName() { return '-' }
 	constructor() {
 		super();
@@ -44,7 +44,7 @@ export class DropField extends Element {
 		], ElementType.Value);
 	}
 }
-export class DropList extends Element {
+class DropList extends Element {
 	getJSONName() { return '-' }
 	constructor() {
 		super();
@@ -56,4 +56,11 @@ export class DropList extends Element {
 			]
 		], ElementType.Value);
 	}
+}
+
+export let JustToShowElements = {
+	Label: Label,
+	Name: Name,
+	DropField: DropField,
+	DropList: DropList
 }

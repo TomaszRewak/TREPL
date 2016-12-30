@@ -1,11 +1,13 @@
-﻿import { Element } from '../elements/Element'
+﻿import * as Elements from '../elements'
 import * as Components from '../components'
+import * as Language from '../../language'
+import * as TRE from '../../tre'
 
-export class AliasDeclaration extends Element {
+export class AliasDeclaration extends Elements.Element {
 	getJSONName() { return 'AliasDeclaration' }
 	c_name: Components.TextField
 	c_type: Components.DropField
-	constructor(name = 'foo', typ: Element = null, value: Element = null) {
+	constructor(name = 'foo', typ: Elements.Element = null, value: Elements.Element = null) {
 		super();
 		this.c_name = new Components.TextField(this, name)
 		this.c_type = new Components.DropField(this, typ)
@@ -16,18 +18,17 @@ export class AliasDeclaration extends Element {
 				new Components.Label(':'),
 				this.c_type,
 			]
-		],
-			ElementType.Variable);
+		], Elements.ElementType.Variable);
 	}
-	constructCode(): L.LogicElement {
-		var logic = new L.AliasDeclaration(
+	constructCode(): Language.Logic.LogicElement {
+		var logic = new TRE.AliasDeclaration(
 			this.c_name.getRawData(),
 			this.c_type.constructCode()
 		);
 		logic.setObserver(this);
 		return logic;
 	}
-	getCopy(): Element {
+	getCopy(): Elements.Element {
 		return new AliasDeclaration(
 			this.c_name.getRawData(),
 			this.c_type.getContentCopy()).copyMetadata(this);

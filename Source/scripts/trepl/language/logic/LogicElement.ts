@@ -1,9 +1,10 @@
 ﻿import * as TypeSystem from '../type_system'
 import * as Observers from '../observers'
-import { Operation } from '../flow/Operation'
-import { Executable } from '../flow/Executable'
+import * as Flow from '../flow'
+import * as Environment from '../environment'
+import * as Compiler from '../compiler'
 
-export abstract class LogicElement implements Executable {
+export abstract class LogicElement implements Flow.Executable {
 	// Sets observer
 	protected observer: Observers.LogicElementObserver = new Observers.EmptyLogicElementObserver();
 	setObserver(observer: Observers.LogicElementObserver) {
@@ -61,7 +62,7 @@ export abstract class LogicElement implements Executable {
 	// Logic components for tags
 	logicComponents: { [tag: string]: LogicElement[] } = {};
 	// Called during code execution by the parent element
-	*run(environment: Memory.Environment): IterableIterator<Operation> {
+	*run(environment: Environment.Environment): IterableIterator<Flow.Operation> {
 		environment.addTempStackScope();
 
 		var operations = this.execute(environment);
@@ -85,17 +86,17 @@ export abstract class LogicElement implements Executable {
 		return;
 	}
 	// Executes code inside
-	abstract execute(environment: Memory.Environment): IterableIterator<Operation>;
+	abstract execute(environment: Environment.Environment): IterableIterator<Flow.Operation>;
 
-	protected static *executeBlock(environment: Memory.Environment, list: LogicElement[]) {
+	protected static *executeBlock(environment: Environment.Environment, list: LogicElement[]) {
 		for (var i = 0; i < list.length; i++) {
 			yield* list[i].run(environment);
 
-			if (environment.flowState == Memory.FlowState.Return) {
+			if (environment.flowState == Environment.FlowState.Return) {
 				environment.passTempValue();
 				return;
 			}
-			else if (environment.flowState != Memory.FlowState.NormalFlow)
+			else if (environment.flowState != Environment.FlowState.NormalFlow)
 				return;
 			else
 				environment.clearCurrentTempScope();
@@ -147,9 +148,9 @@ export abstract class LogicElement implements Executable {
 		this.errorIfNot(typ instanceof TypeSystem.ReferenceType, 'Expected a reference', element);
 	}
 
-	defalutOperation: Operation = null;
+	defalutOperation: Flow.Operation = null;
 	setAsInternalOperation(): LogicElement {
-		this.defalutOperation = Operation.internal(this);
+		this.defalutOperation = Flow.Operation.internal(this);
 		return this;
 	}
 }
@@ -159,7 +160,7 @@ export class EmptyElement extends LogicElement {
 		return true;
 	}
 
-	*execute(environment: Memory.Environment): IterableIterator<Operation> {
+	*execute(environment: Environment.Environment): IterableIterator<Flow.Operation> {
 		return;
 	}
 }

@@ -1,5 +1,4 @@
-﻿import * as Compiler from '../compiler/Compiler'
-import * as Environment from '../environment/Environment'
+﻿import * as Environment from '../environment/Environment'
 
 export interface Executable {
 	execute(environment: Environment.Environment): IterableIterator<Operation>;

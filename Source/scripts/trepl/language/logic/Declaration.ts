@@ -1,10 +1,10 @@
 ﻿import * as Flow from '../flow'
-import * as MemoryFields from '../memory_fields'
+import * as Memory from '../memory'
 import * as TypeSystem from '../type_system'
 import * as Environment from '../environment'
 
 export class EnclosedValue implements Flow.IDeclaration {
-	constructor(public name: string, private value: MemoryFields.Value) {
+	constructor(public name: string, private value: Memory.Value) {
 		this.value = value.getCopy();
 	}
 

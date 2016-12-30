@@ -1,8 +1,5 @@
-﻿import * as MemoryFields from '../memory_fields'
-import * as Environment from '../environment'
+﻿import * as Environment from '../environment'
 import * as Executable from './Executable'
-import { StaticResult, RValue } from '../type_system/StaticResult'
-import { PrototypeObj } from '../type_system/Prototype'
 
 //export class IDeclaration implements Executable {
 //	constructor(public name: string) {

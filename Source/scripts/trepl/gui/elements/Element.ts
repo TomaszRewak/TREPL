@@ -1,12 +1,11 @@
-﻿import { ElementType } from './ElementType'
+﻿import * as Observers from '../../language/observers'
+
+import { ElementType } from './ElementType'
 import { ElementParent } from './ElementParent'
 import { HelperParent } from './HelperParent'
 import { Component } from '../components/Component'
-import { StaticResult } from '../../language/memory/type_system/StaticResult'
-import { Type } from '../../language/memory/type_system/Base'
-import { Stack } from '../../language/memory/data_structures/Stack'
-import { LogicElement } from '../../language/flow/LogicElement'
-import { LogicElementObserver } from '../../language/observers/LogicElementObserver'
+
+
 
 var styles = {};
 styles[ElementType.Value] = 'valueCodeElement';
@@ -19,7 +18,7 @@ styles[ElementType.Other] = 'otherCodeElement';
 styles[ElementType.Program] = 'programCodeElement';
 
 // Represents single element of the programm composed of predefind components and provids interface for user interaction
-export abstract class Element implements LogicElementObserver {
+export abstract class Element implements Observers.LogicElementObserver {
 	// Real JQuery element that has been generated for this element
 	private composedElement: JQuery = null;
 	// Parent holding element
