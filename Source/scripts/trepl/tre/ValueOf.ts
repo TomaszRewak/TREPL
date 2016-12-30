@@ -1,62 +1,33 @@
-﻿module L {
-    export class ValueOf extends LogicElement {
-        constructor(
-            public log_value: LogicElement
-            ) { super(); }
+﻿import * as Lang from '../language'
 
-        _compile(environment: Compiler.TypeEnvironment): boolean {
-            this.errorIfEmpty(this.log_value);
-            this.cs = this.log_value.compile(environment) && this.cs;
-            if (!this.cs) return false;
+export class ValueOf extends Lang.Logic.LogicElement {
+	constructor(
+		public log_value: Lang.Logic.LogicElement
+	) { super(); }
 
-            this.errorIfNot(this.log_value.returns.varType instanceof TS.ReferenceType, 'Expected reference', this.log_value);
-            if (!this.cs) return false;
+	_compile(environment: Lang.Compiler.TypeEnvironment): boolean {
+		this.errorIfEmpty(this.log_value);
+		this.cs = this.log_value.compile(environment) && this.cs;
+		if (!this.cs) return false;
 
-            var reference = <TS.ReferenceType>this.log_value.returns.varType;
-            this.returns = new TS.LValueOfType(reference.prototypeType.referencedPrototypeType.declaresType());
+		this.errorIfNot(this.log_value.returns.varType instanceof Lang.TypeSystem.ReferenceType, 'Expected reference', this.log_value);
+		if (!this.cs) return false;
 
-            return this.cs;
-        }
+		var reference = <Lang.TypeSystem.ReferenceType>this.log_value.returns.varType;
+		this.returns = new Lang.TypeSystem.LValue(reference.prototypeType.referencedPrototypeType.declaresType());
 
-        *execute(environment: Memory.Environment): IterableIterator<Operation> {
-            yield* this.log_value.run(environment);
+		return this.cs;
+	}
 
-            var reference = <TS.Reference> environment.popTempValue().getValue();
+	*execute(environment: Lang.Environment.Environment): IterableIterator<Lang.Flow.Operation> {
+		yield* this.log_value.run(environment);
 
-            environment.pushTempAlias(reference.reference);
+		var reference = <Lang.TypeSystem.ReferenceObj>environment.popFromTempStack().getValue();
 
-            yield Operation.tempMemory(this);
+		environment.addOnTempStack(new Lang.TypeSystem.Alias(reference.reference));
 
-            return;
-        }
-    }
+		yield Lang.Flow.Operation.tempMemory(this);
+
+		return;
+	}
 }
-
-module E {
-    export class ValueOf extends Element {
-        getJSONName() { return 'ValueOf' }
-        c_object: C.DropField
-        constructor(
-            object: E.Element = null) {
-            super();
-            this.c_object = new C.DropField(this, object)
-            this.initialize([
-                [
-                    new C.Label('val of'),
-                    this.c_object,
-                ]
-            ], ElementType.Value);
-        }
-        constructCode(): L.LogicElement {
-            var logic = new L.ValueOf(
-                this.c_object.constructCode()
-                );
-            logic.setObserver(this);
-            return logic;
-        }
-        getCopy(): Element {
-            return new ValueOf(
-                this.c_object.getContentCopy()).copyMetadata(this);
-        }
-    }
-} 

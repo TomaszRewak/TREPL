@@ -1,70 +1,37 @@
-module L {
-    export class Block extends LogicElement {
-        constructor(
-            public log_list: LogicElement[]
-        ) {
-            super();
-        }
+import * as Lang from '../language'
 
-        _compile(environment: Compiler.TypeEnvironment) {
-            environment.addScope();
+import { If } from './If'
 
-            this.compileBlock(environment, this.log_list);
+export class Block extends Lang.Logic.LogicElement {
+	constructor(
+		public log_list: Lang.Logic.LogicElement[]
+	) {
+		super();
+	}
 
-            environment.removeScope();
+	_compile(environment: Lang.Compiler.TypeEnvironment) {
+		environment.addScope();
 
-            if (!this.cs) return false;
+		this.compileBlock(environment, this.log_list);
 
-            return this.cs;
-        }
+		environment.removeScope();
 
-        *execute(environment: Memory.Environment): IterableIterator<Operation> {
-            environment.addScope('Block');
+		if (!this.cs) return false;
 
-            yield Operation.memory(this);
+		return this.cs;
+	}
 
-            yield* If.executeBlock(environment, this.log_list);
+	*execute(environment: Lang.Environment.Environment): IterableIterator<Lang.Flow.Operation> {
+		environment.addScope('Block');
 
-            var removedScope = environment.removeScope();
+		yield Lang.Flow.Operation.memory(this);
 
-            yield Operation.memory(this);
+		yield* If.executeBlock(environment, this.log_list);
 
-            return;
-        }
-    }
+		var removedScope = environment.removeScope();
+
+		yield Lang.Flow.Operation.memory(this);
+
+		return;
+	}
 }
-
-module E {
-    export class Block extends Element {
-        getJSONName() { return 'Block' }
-        c_list: C.DropList
-        constructor(
-            list: E.Element[] = []) {
-            super();
-            this.c_list = new C.DropList(this, list)
-            this.initialize([
-                [
-                    new C.Label('{'),
-                ],
-                [
-                    this.c_list,
-                ],
-                [
-                    new C.Label('}'),
-                ]
-            ],
-                ElementType.Flow);
-        }
-        constructCode(): L.LogicElement {
-            var logic = new L.Block(
-                this.c_list.getLogicComponents()
-            );
-            logic.setObserver(this);
-            return logic;
-        }
-        getCopy(): Element {
-            return new Block(
-                this.c_list.getContentCopy()).copyMetadata(this);
-        }
-    }
-} 

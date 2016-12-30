@@ -63,7 +63,7 @@ export abstract class LogicElement implements Flow.Executable {
 	logicComponents: { [tag: string]: LogicElement[] } = {};
 	// Called during code execution by the parent element
 	*run(environment: Environment.Environment): IterableIterator<Flow.Operation> {
-		environment.addTempStackScope();
+		environment.addTempScope();
 
 		var operations = this.execute(environment);
 		var next = operations.next();
@@ -79,7 +79,7 @@ export abstract class LogicElement implements Flow.Executable {
 		}
 
 		if (!environment.hasValueOnCurrentLevel())
-			environment.pushTempValue(TypeSystem.VoidClassObj.classInstance.defaultValue());
+			environment.addOnTempStack(TypeSystem.VoidClassObj.classInstance.defaultValue());
 
 		environment.removeTempScope();
 

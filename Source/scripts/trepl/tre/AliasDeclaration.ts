@@ -35,7 +35,7 @@ export class AliasDeclaration extends Lang.Logic.LogicElement implements Lang.Fl
 	}
 
 	*instantiate(environment: Lang.Environment.Environment): IterableIterator<Lang.Flow.Operation> {
-		environment.addValueToStack(new Lang.TypeSystem.Alias(environment.popTempValue()), this.name);
+		environment.addOnStack(new Lang.TypeSystem.Alias(environment.popFromTempStack()), this.name);
 
 		return;
 	}

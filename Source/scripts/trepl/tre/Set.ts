@@ -1,77 +1,47 @@
-﻿module L {
-    export class Set extends LogicElement {
-        constructor(
-            public log_left: LogicElement,
-            public log_right: LogicElement
-            ) { super(); }
+﻿import * as Lang from '../language'
 
-        _compile(environment: Compiler.TypeEnvironment) {
-            this.errorIfEmpty(this.log_left);
-            this.errorIfEmpty(this.log_right);
-            this.cs = this.log_right.compile(environment) && this.cs;
-            this.cs = this.log_left.compile(environment) && this.cs;
+export class Set extends Lang.Logic.LogicElement {
+	constructor(
+		public log_left: Lang.Logic.LogicElement,
+		public log_right: Lang.Logic.LogicElement
+	) { super(); }
 
-            if (!this.cs) return false;
+	_compile(environment: Lang.Compiler.TypeEnvironment) {
+		this.errorIfEmpty(this.log_left);
+		this.errorIfEmpty(this.log_right);
+		this.cs = this.log_right.compile(environment) && this.cs;
+		this.cs = this.log_left.compile(environment) && this.cs;
 
-            this.errorIfNot(this.log_left.returns instanceof TS.LValueOfType, 'Expected L-value', this.log_left);
-            if (!this.cs) return false;
+		if (!this.cs) return false;
 
-            var leftType = this.log_left.returns.varType;
-            var rightType = this.log_right.returns.varType;
+		this.errorIfNot(this.log_left.returns instanceof Lang.TypeSystem.LValue, 'Expected L-value', this.log_left);
+		if (!this.cs) return false;
 
-            this.errorIfNot(leftType instanceof TS.InstanceType, 'Expected type instance', this.log_left);
-            this.errorIfNot(rightType instanceof TS.InstanceType, 'Expected type instance', this.log_right);
-            if (!this.cs) return false;
+		var leftType = this.log_left.returns.varType;
+		var rightType = this.log_right.returns.varType;
 
-            this.errorIfTypeMismatch(TS.rValue(leftType), this.log_right.returns, this.log_right);
-            if (!this.cs) return false;
+		this.errorIfNot(leftType instanceof Lang.TypeSystem.InstanceType, 'Expected type instance', this.log_left);
+		this.errorIfNot(rightType instanceof Lang.TypeSystem.InstanceType, 'Expected type instance', this.log_right);
+		if (!this.cs) return false;
 
-            return this.cs;
-        }
+		this.errorIfTypeMismatch(Lang.TypeSystem.rValue(leftType), this.log_right.returns, this.log_right);
+		if (!this.cs) return false;
 
-        *execute(environment: Memory.Environment): IterableIterator<Operation> {
-            yield* this.log_right.run(environment);
-            yield* this.log_left.run(environment);
+		return this.cs;
+	}
 
-            var valueLeft = environment.popTempValue();
-            var valueRight = environment.popTempValue();
+	*execute(environment: Lang.Environment.Environment): IterableIterator<Lang.Flow.Operation> {
+		yield* this.log_right.run(environment);
+		yield* this.log_left.run(environment);
 
-            valueLeft.setValue(valueRight.getValue().getCopy());
-            //environment.pushTempValue(valueRight.getValue().getCopy());
+		var valueLeft = environment.popFromTempStack();
+		var valueRight = environment.popFromTempStack();
 
-            yield Operation.memory(this);
+		valueLeft.setValue(valueRight.getValue().getCopy());
+		//environment.pushTempValue(valueRight.getValue().getCopy());
 
-            return;
-        }
-    }
+		yield Lang.Flow.Operation.memory(this);
+
+		return;
+	}
 }
-
-module E {
-    export class Set extends Element {
-        getJSONName() { return 'Set' }
-        c_left: C.DropField
-        c_right: C.DropField
-        constructor(left: E.Element = null, right: E.Element = null) {
-            super();
-            this.c_left = new C.DropField(this, left),
-            this.c_right = new C.DropField(this, right)
-            this.initialize([  // TODO: Zmienić
-                [this.c_left, new C.Label('='), this.c_right]
-            ],
-                ElementType.Variable);
-        }
-        constructCode(): L.LogicElement {
-            var logic = new L.Set(
-                this.c_left.constructCode(),
-                this.c_right.constructCode()
-                );
-            logic.setObserver(this);
-            return logic;
-        }
-        getCopy(): Element {
-            return new Set(
-                this.c_left.getContentCopy(),
-                this.c_right.getContentCopy()).copyMetadata(this);
-        }
-    }
-} 

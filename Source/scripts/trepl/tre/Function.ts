@@ -1,215 +1,160 @@
-﻿module L {
-    export class Function extends LogicElement {
-        constructor(
-            public name: string,
-            public log_arguments: LogicElement[],
-            public log_return: LogicElement,
-            public log_list: LogicElement[]
-            ) { super(); }
+﻿import * as Lang from '../language'
 
-        parameters: TS.FunctionParapeterType[];
-        functionType: TS.FunctionClassType;
-        declarations: L.IDeclaration[];
+export class Function extends Lang.Logic.LogicElement {
+	constructor(
+		public name: string,
+		public log_arguments: Lang.Logic.LogicElement[],
+		public log_return: Lang.Logic.LogicElement,
+		public log_list: Lang.Logic.LogicElement[]
+	) { super(); }
 
-        closure: { [name: string]: TS.Type };
-        enclosedValues: TS.EnclosedValue[];
+	parameters: Lang.TypeSystem.FunctionParapeterType[];
+	functionType: Lang.TypeSystem.FunctionClassType;
+	declarations: Lang.Logic.Declaration[];
 
-        private typeCompiled = false;
-        compileType(environment: Compiler.TypeEnvironment): boolean {
-            if (this.typeCompiled) return this.cs;
-            else this.typeCompiled = true;
+	closure: { [name: string]: Lang.TypeSystem.Type };
+	enclosedValues: Lang.Logic.EnclosedValue[];
 
-            this.parameters = [];
-            this.declarations = [];
+	private typeCompiled = false;
+	compileType(environment: Lang.Compiler.TypeEnvironment): boolean {
+		if (this.typeCompiled) return this.cs;
+		else this.typeCompiled = true;
 
-            this.errorIfEmpty(this.log_return);
-            this.cs = this.log_return.compile(environment) && this.cs;
-            if (!this.cs) return false;
+		this.parameters = [];
+		this.declarations = [];
 
-            var returnType = (<TS.PrototypeType> this.log_return.returns.varType).declaresType();
+		this.errorIfEmpty(this.log_return);
+		this.cs = this.log_return.compile(environment) && this.cs;
+		if (!this.cs) return false;
 
-            var usedNames: { [name: string]: boolean } = {};
+		var returnType = (<Lang.TypeSystem.PrototypeType>this.log_return.returns.varType).declaresType();
 
-            for (var i = 0; i < this.log_arguments.length; i++) {
-                if (this.log_arguments[i] instanceof EmptyElement)
-                    continue;
+		var usedNames: { [name: string]: boolean } = {};
 
-                this.errorIfNot(this.log_arguments[i] instanceof IDeclaration, 'Expected parameter declaration', this.log_arguments[i]);
-                if (!this.cs) continue;
+		for (var i = 0; i < this.log_arguments.length; i++) {
+			if (this.log_arguments[i] instanceof Lang.Logic.EmptyElement)
+				continue;
 
-                var declaration = <IDeclaration> this.log_arguments[i];
-                environment.addScope();
-                this.cs = declaration.compile(environment) && this.cs;
-                environment.removeScope();
+			this.errorIfNot(this.log_arguments[i] instanceof Lang.Logic.Declaration, 'Expected parameter declaration', this.log_arguments[i]);
+			if (!this.cs) continue;
 
-                if (!!usedNames[declaration.name]) {
-                    this.error("Parameter of this name already exists", declaration);
-                    continue;
-                }
-                usedNames[declaration.name] = true;
+			var declaration = <Lang.Logic.Declaration>this.log_arguments[i];
+			environment.addScope();
+			this.cs = declaration.compile(environment) && this.cs;
+			environment.removeScope();
 
-                if (!declaration.cs) continue;
+			if (!!usedNames[declaration.name]) {
+				this.error("Parameter of this name already exists", declaration);
+				continue;
+			}
+			usedNames[declaration.name] = true;
 
-                var parameter = new TS.FunctionParapeterType(
-                    declaration.name,
-                    declaration.expectsType,
-                    declaration instanceof L.IDeclaration
-                    );
+			if (!declaration.cs) continue;
 
-                this.parameters[this.parameters.length] = parameter;
-                this.declarations[this.declarations.length] = declaration;
-            }
+			var parameter = new Lang.TypeSystem.FunctionParapeterType(
+				declaration.name,
+				declaration.typeOfVariable,
+				declaration instanceof Lang.Logic.Declaration
+			);
 
-            if (!this.cs) return false;
+			this.parameters[this.parameters.length] = parameter;
+			this.declarations[this.declarations.length] = declaration;
+		}
 
-            this.functionType = new TS.FunctionClassType(this.parameters, TS.rValue(returnType));
+		if (!this.cs) return false;
 
-            return this.cs;
-        }
+		this.functionType = new Lang.TypeSystem.FunctionClassType(this.parameters, Lang.TypeSystem.rValue(returnType));
 
-        _compile(environment: Compiler.TypeEnvironment): boolean {
+		return this.cs;
+	}
 
-            environment.addScope();
-            environment.addClosure();
+	_compile(environment: Lang.Compiler.TypeEnvironment): boolean {
 
-            this.compileType(environment);
+		environment.addScope();
+		environment.addClosure();
 
-            for (var i = 0; i < this.declarations.length; i++) {
-                var declaration = this.declarations[i];
-                environment.addElement(declaration.name, declaration.expectsType.varType);
-            }
+		this.compileType(environment);
 
-            environment.addElement(this.name, new TS.FunctionType(this.functionType));
+		for (var i = 0; i < this.declarations.length; i++) {
+			var declaration = this.declarations[i];
+			environment.addElement(declaration.name, declaration.typeOfVariable.varType);
+		}
 
-            var returnsType = this.functionType.returnType.varType;
+		environment.addElement(this.name, new Lang.TypeSystem.FunctionType(this.functionType));
 
-            environment.addContext(Compiler.Context.Function);
-            environment.addFunctionExpection(this.functionType.returnType.varType);
-            var flowState = this.compileBlock(environment, this.log_list);
-            this.errorIf(
-                flowState != Compiler.FlowState.Return && !(returnsType instanceof TS.InstanceType && returnsType.prototypeType == TS.Void.typeInstance),
-                'Not all code paths return a value',
-                this.log_return);
-            environment.removeFunctionExpection();
-            environment.removeContext();
+		var returnsType = this.functionType.returnType.varType;
 
-            this.closure = environment.removeClosure();
-            environment.removeScope();
+		environment.addContext(Lang.Compiler.Context.Function);
+		environment.addFunctionExpection(this.functionType.returnType.varType);
+		var flowState = this.compileBlock(environment, this.log_list);
+		this.errorIf(
+			flowState != Lang.Compiler.FlowState.Return && !(returnsType instanceof Lang.TypeSystem.InstanceType && returnsType.prototypeType == Lang.TypeSystem.VoidClassObj.typeInstance),
+			'Not all code paths return a value',
+			this.log_return);
+		environment.removeFunctionExpection();
+		environment.removeContext();
 
-            if (!this.cs) return false;
+		this.closure = environment.removeClosure();
+		environment.removeScope();
 
-            environment.addElement(this.name, new TS.FunctionType(this.functionType));
+		if (!this.cs) return false;
 
-            return this.cs;
-        }
+		environment.addElement(this.name, new Lang.TypeSystem.FunctionType(this.functionType));
 
-        *execute(environment: Memory.Environment): IterableIterator<Operation> {
-            var fun = this.createFunctionObject(environment, this.closure);
+		return this.cs;
+	}
 
-            environment.addValueToStack(fun, this.name);
+	*execute(environment: Lang.Environment.Environment): IterableIterator<Lang.Flow.Operation> {
+		var fun = this.createFunctionObject(environment, this.closure);
 
-            fun.closure.push(new TS.EnclosedValue(
-                this.name,
-                fun.getCopy()));
+		environment.addOnStack(fun, this.name);
 
-            yield Operation.memory(this);
+		fun.closure.push(new Lang.Logic.EnclosedValue(
+			this.name,
+			fun.getCopy()));
 
-            return;
-        }
+		yield Lang.Flow.Operation.memory(this);
 
-        createFunctionObject(environment: Memory.Environment, closure: { [name: string]: TS.Type }): TS.FunctionObject {
-            var logicElement = this;
+		return;
+	}
 
-            this.enclosedValues = [];
-            for (var key in closure) {
-                this.enclosedValues.push(
-                    new TS.EnclosedValue(
-                        key,
-                        environment.getFromStack(key).getValue().getCopy()));
-            }
+	createFunctionObject(environment: Lang.Environment.Environment, closure: { [name: string]: Lang.TypeSystem.Type }): Lang.TypeSystem.FunctionObj {
+		var logicElement = this;
 
-            var declarations = [];
+		this.enclosedValues = [];
+		for (var key in closure) {
+			this.enclosedValues.push(
+				new Lang.Logic.EnclosedValue(
+					key,
+					environment.getFromStack(key).getValue().getCopy()));
+		}
 
-            var fun = new TS.FunctionObject(
-                new TS.FunctionClass(),
-                this.declarations,
-                function *(environment: Memory.Environment) {
-                    for (var i = 0; i < logicElement.log_list.length; i++) {
-                        yield * logicElement.log_list[i].run(environment);
+		var declarations = [];
 
-                        if (environment.flowState == Memory.FlowState.Return) {
-                            var value = environment.popTempValue().getValue();
-                            environment.clearCurrentTempScope();
-                            environment.pushTempValue(value);
-                            environment.flowState = Memory.FlowState.NormalFlow;
-                            return;
-                        }
-                        else {
-                            environment.clearCurrentTempScope();
-                        }
-                    }
+		var fun = new Lang.TypeSystem.FunctionObj(
+			new Lang.TypeSystem.FunctionClassObj(),
+			this.declarations,
+			function* (environment: Lang.Environment.Environment) {
+				for (var i = 0; i < logicElement.log_list.length; i++) {
+					yield* logicElement.log_list[i].run(environment);
 
-                    return new TS.Obj();
-                },
-                this.enclosedValues
-                );
+					if (environment.flowState == Lang.Environment.FlowState.Return) {
+						var value = environment.popFromTempStack().getValue();
+						environment.clearCurrentTempScope();
+						environment.addOnTempStack(value);
+						environment.flowState = Lang.Environment.FlowState.NormalFlow;
+						return;
+					}
+					else {
+						environment.clearCurrentTempScope();
+					}
+				}
 
-            return fun;
-        }
-    }
+				return new Lang.TypeSystem.Obj();
+			},
+			this.enclosedValues
+		);
+
+		return fun;
+	}
 }
-
-module E {
-    export class Function extends Element {
-        getJSONName() { return 'Function' }
-        c_name: C.TextField
-        c_arguments: C.DropList
-        c_return: C.DropField
-        c_list: C.DropList
-        constructor(
-            name = 'foo',
-            args: E.Element[] = [],
-            returns: E.Element = null,
-            list: E.Element[] = []) {
-            super();
-            this.c_name = new C.TextField(this, name)
-            this.c_arguments = new C.DropList(this, args)
-            this.c_return = new C.DropField(this, returns)
-            this.c_list = new C.DropList(this, list)
-            this.initialize([  // TODO: Zmienić
-                [
-                    this.c_name,
-                    new C.Label('('),
-                    this.c_arguments,
-                    new C.Label('):'),
-                    this.c_return,
-                ],
-                [
-                    new C.Label('{'), ],
-                [
-                    this.c_list,
-                ],
-                [
-                    new C.Label('}'),
-                ]
-            ], ElementType.Function);
-        }
-        constructCode(): L.LogicElement {
-            var logic = new L.Function(
-                this.c_name.getRawData(),
-                this.c_arguments.getLogicComponents(),
-                this.c_return.constructCode(),
-                this.c_list.getLogicComponents()
-                );
-            logic.setObserver(this);
-            return logic;
-        }
-        getCopy(): Element {
-            return new Function(
-                this.c_name.getRawData(),
-                this.c_arguments.getContentCopy(),
-                this.c_return.getContentCopy(),
-                this.c_list.getContentCopy()).copyMetadata(this);
-        }
-    }
-} 

@@ -19,7 +19,7 @@ export class ArrayClassObj extends PrototypeObj {
 		super({});
 	}
 	defaultValue(): InstanceObj {
-		return new ArrayObject(this);
+		return new ArrayObj(this);
 	}
 }
 
@@ -46,7 +46,7 @@ export class ArrayOfLengthClassType extends ArrayClassType {
 	}
 }
 
-export class ArrayObject extends InstanceObj {
+export class ArrayObj extends InstanceObj {
 	observer: TSO.ArrayObjectObserver = new TSO.ArrayObjectObserver(this);
 	values: ArrayField[];
 	constructor(
@@ -62,8 +62,8 @@ export class ArrayObject extends InstanceObj {
 	public getField(index: number): MemoryFields.MemoryField {
 		return this.values[index];
 	}
-	public getCopy(): ArrayObject { // TODO: copy also actual values
-		var newObject = new ArrayObject(this.prototype);
+	public getCopy(): ArrayObj { // TODO: copy also actual values
+		var newObject = new ArrayObj(this.prototype);
 
 		for (var i = 0; i < this.prototype.length; i++) {
 			newObject.getField(i).setValue(this.values[i].getValue().getCopy());

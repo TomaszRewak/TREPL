@@ -1,66 +1,37 @@
-﻿module L {
-    export class RefLike extends LogicElement {
-        constructor(
-            public log_value: LogicElement
-            ) { super(); }
+﻿import * as Lang from '../language'
 
-        _compile(environment: Compiler.TypeEnvironment): boolean {
-            this.errorIfEmpty(this.log_value);
-            this.cs = this.log_value.compile(environment) && this.cs;
-            if (!this.cs) return false;
+export class RefLike extends Lang.Logic.LogicElement {
+	constructor(
+		public log_value: Lang.Logic.LogicElement
+	) { super(); }
 
-            var valueType = this.log_value.returns.varType;
-            this.errorIfNot(valueType instanceof TS.InstanceType, 'Expected type instance', this.log_value);
-            if (!this.cs) return false;
+	_compile(environment: Lang.Compiler.TypeEnvironment): boolean {
+		this.errorIfEmpty(this.log_value);
+		this.cs = this.log_value.compile(environment) && this.cs;
+		if (!this.cs) return false;
 
-            var instanceType = <TS.InstanceType> valueType;
+		var valueType = this.log_value.returns.varType;
+		this.errorIfNot(valueType instanceof Lang.TypeSystem.InstanceType, 'Expected type instance', this.log_value);
+		if (!this.cs) return false;
 
-            this.returns = new TS.LValueOfType(new TS.ReferenceType(new TS.ReferenceClassType(instanceType.prototypeType)));
+		var instanceType = <Lang.TypeSystem.InstanceType>valueType;
 
-            return this.cs;
-        }
+		this.returns = new Lang.TypeSystem.LValue(new Lang.TypeSystem.ReferenceType(new Lang.TypeSystem.ReferenceClassType(instanceType.prototypeType)));
 
-        *execute(environment: Memory.Environment): IterableIterator<Operation> {
-            yield* this.log_value.run(environment);
+		return this.cs;
+	}
 
-            var value = <TS.Instance> environment.popTempValue().getValue();
+	*execute(environment: Lang.Environment.Environment): IterableIterator<Lang.Flow.Operation> {
+		yield* this.log_value.run(environment);
 
-            var field = environment.addToHeap(value.getCopy());
+		var value = <Lang.TypeSystem.InstanceObj>environment.popFromTempStack().getValue();
 
-            environment.pushTempValue(new TS.Reference(new TS.ReferenceClass(value.prototype), field));
+		var field = environment.addToHeap(value.getCopy());
 
-            yield Operation.tempMemory(this);
+		environment.addOnTempStack(new Lang.TypeSystem.ReferenceObj(field));
 
-            return;
-        }
-    }
+		yield Lang.Flow.Operation.tempMemory(this);
+
+		return;
+	}
 }
-
-module E {
-    export class ReferenceLike extends Element {
-        getJSONName() { return 'ReferenceLike' }
-        c_object: C.DropField
-        constructor(
-            object: E.Element = null) {
-            super();
-            this.c_object = new C.DropField(this, object)
-            this.initialize([
-                [
-                    new C.Label('ref like'),
-                    this.c_object,
-                ]
-            ], ElementType.Value);
-        }
-        constructCode(): L.LogicElement {
-            var logic = new L.RefLike(
-                this.c_object.constructCode()
-                );
-            logic.setObserver(this);
-            return logic;
-        }
-        getCopy(): Element {
-            return new ReferenceLike(
-                this.c_object.getContentCopy()).copyMetadata(this);
-        }
-    }
-} 

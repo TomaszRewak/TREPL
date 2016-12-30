@@ -1,110 +1,65 @@
-﻿module L {
-    export class WhileLoop extends LogicElement {
-        constructor(
-            public log_condition: LogicElement,
-            public log_list: LogicElement[]
-        ) {
-            super();
-            log_condition.setAsInternalOperation();
-        }
+﻿import * as Lang from '../language'
 
-        _compile(environment: Compiler.TypeEnvironment): boolean {
-            environment.addScope();
+export class WhileLoop extends Lang.Logic.LogicElement {
+	constructor(
+		public log_condition: Lang.Logic.LogicElement,
+		public log_list: Lang.Logic.LogicElement[]
+	) {
+		super();
+		log_condition.setAsInternalOperation();
+	}
 
-            this.cs = this.log_condition.compile(environment) && this.cs;
+	_compile(environment: Lang.Compiler.TypeEnvironment): boolean {
+		environment.addScope();
 
-            environment.addContext(Compiler.Context.Loop);
-            this.compileBlock(environment, this.log_list);
-            environment.removeContext();
+		this.cs = this.log_condition.compile(environment) && this.cs;
 
-            environment.removeScope();
+		environment.addContext(Lang.Compiler.Context.Loop);
+		this.compileBlock(environment, this.log_list);
+		environment.removeContext();
 
-            if (!this.cs) return false;
+		environment.removeScope();
 
-            this.errorIfTypeMismatch(TS.rValue(TS.Boolean.objectTypeInstance), this.log_condition.returns, this.log_condition);
+		if (!this.cs) return false;
 
-            return this.cs;
-        }
+		this.errorIfTypeMismatch(Lang.TypeSystem.rValue(Lang.TypeSystem.BooleanClassObj.objectTypeInstance), this.log_condition.returns, this.log_condition);
 
-        *execute(environment: Memory.Environment): IterableIterator<Operation> {
-            yield Operation.memory(this);
+		return this.cs;
+	}
 
-            while (true) {
-                yield* this.log_condition.run(environment);
+	*execute(environment: Lang.Environment.Environment): IterableIterator<Lang.Flow.Operation> {
+		yield Lang.Flow.Operation.memory(this);
 
-                yield Operation.flow(this.log_condition);
+		while (true) {
+			yield* this.log_condition.run(environment);
 
-                var condition = <TS.BaseClassObject>environment.popTempValue().getValue();
-                environment.clearCurrentTempScope();
+			yield Lang.Flow.Operation.flow(this.log_condition);
 
-                if (!condition.rawValue)
-                    break;
+			var condition = <Lang.TypeSystem.BaseClassInstanceObj>environment.popFromTempStack().getValue();
+			environment.clearCurrentTempScope();
 
-                environment.addScope('While loop');
-                yield* WhileLoop.executeBlock(environment, this.log_list);
-                var removedScope = environment.removeScope();
+			if (!condition.rawValue)
+				break;
 
-                if (environment.flowState == Memory.FlowState.Break) {
-                    environment.flowState = Memory.FlowState.NormalFlow;
-                    environment.clearCurrentTempScope();
-                    break;
-                }
-                if (environment.flowState == Memory.FlowState.Return) {
-                    break;
-                }
-                else {
-                    environment.flowState = Memory.FlowState.NormalFlow;
-                }
-            }
+			environment.addScope('While loop');
+			yield* WhileLoop.executeBlock(environment, this.log_list);
+			var removedScope = environment.removeScope();
 
-            //yield Operation.flow(this);
+			if (environment.flowState == Lang.Environment.FlowState.Break) {
+				environment.flowState = Lang.Environment.FlowState.NormalFlow;
+				environment.clearCurrentTempScope();
+				break;
+			}
+			if (environment.flowState == Lang.Environment.FlowState.Return) {
+				break;
+			}
+			else {
+				environment.flowState = Lang.Environment.FlowState.NormalFlow;
+			}
+		}
 
-            return;
-        }
-    }
+		//yield Operation.flow(this);
+
+		return;
+	}
 }
-
-module E {
-    export class WhileLoop extends Element {
-        getJSONName() { return 'WhileLoop' }
-        c_condition: C.DropField
-        c_list: C.DropList
-        constructor(
-            cond: E.Element = null,
-            list: E.Element[] = []) {
-            super();
-            this.c_condition = new C.DropField(this, cond)
-            this.c_list = new C.DropList(this, list)
-            this.initialize([  // TODO: Zmienić
-                [
-                    new C.Label('while ('),
-                    this.c_condition,
-                    new C.Label(')'),
-                ],
-                [
-                    new C.Label('{'),
-                ],
-                [
-                    this.c_list,
-                ],
-                [
-                    new C.Label('}'),
-                ]
-            ],
-                ElementType.Flow);
-        }
-        constructCode(): L.LogicElement {
-            var logic = new L.WhileLoop(
-                this.c_condition.constructCode(),
-                this.c_list.getLogicComponents()
-            );
-            logic.setObserver(this);
-            return logic;
-        }
-        getCopy(): Element {
-            return new WhileLoop(
-                this.c_condition.getContentCopy(),
-                this.c_list.getContentCopy()).copyMetadata(this);
-        }
-    }
-} 

@@ -1,57 +1,30 @@
-﻿module L {
-    export class Scope extends LogicElement {
-        constructor(
-            public log_list: LogicElement[]
-            ) { super(); }
+﻿import * as Lang from '../language'
 
-        _compile(environment: Compiler.TypeEnvironment): boolean {
-            for (var i = 0; i < this.log_list.length; i++)
-                this.cs = this.log_list[i].compile(environment) && this.cs;
+export class Scope extends Lang.Logic.LogicElement {
+	constructor(
+		public log_list: Lang.Logic.LogicElement[]
+	) { super(); }
 
-            return this.cs;
-        }
+	_compile(environment: Lang.Compiler.TypeEnvironment): boolean {
+		for (var i = 0; i < this.log_list.length; i++)
+			this.cs = this.log_list[i].compile(environment) && this.cs;
 
-        *execute(environment: Memory.Environment): IterableIterator<Operation> {
+		return this.cs;
+	}
 
-            environment.addScope('Scope');
+	*execute(environment: Lang.Environment.Environment): IterableIterator<Lang.Flow.Operation> {
 
-            yield Operation.memory(this);
+		environment.addScope('Scope');
 
-            for (var i = 0; i < this.log_list.length; i++)
-                yield* this.log_list[i].run(environment);
+		yield Lang.Flow.Operation.memory(this);
 
-            environment.removeScope();
+		for (var i = 0; i < this.log_list.length; i++)
+			yield* this.log_list[i].run(environment);
 
-            yield Operation.memory(this);
+		environment.removeScope();
 
-            return;
-        }
-    }
+		yield Lang.Flow.Operation.memory(this);
+
+		return;
+	}
 }
-
-module E {
-    export class Scope extends Element {
-        getJSONName() { return 'Scope' }
-        c_list: C.DropList
-        constructor(elements: E.Element[] = []) {
-            super();
-            this.c_list = new C.DropList(this, elements)
-            this.initialize([
-                [new C.Label('{')],
-                [this.c_list],
-                [new C.Label('}')]
-            ], ElementType.Flow);
-        }
-        constructCode(): L.LogicElement {
-            var logic = new L.Scope(
-                this.c_list.getLogicComponents()
-                );
-            logic.setObserver(this);
-            return logic;
-        }
-        getCopy(): Element {
-            return new Scope(
-                this.c_list.getContentCopy()).copyMetadata(this);
-        }
-    }
-} 

@@ -1,40 +1,19 @@
-﻿module L {
-    export class Void extends LogicElement {
-        constructor() { super(); }
+﻿import * as Lang from '../language'
 
-        _compile(environment: Compiler.TypeEnvironment): boolean {
-            this.returns = new TS.RValueOfType(TS.Void.typeInstance);
+export class Void extends Lang.Logic.LogicElement {
+	constructor() { super(); }
 
-            return true;
-        }
+	_compile(environment: Lang.Compiler.TypeEnvironment): boolean {
+		this.returns = new Lang.TypeSystem.RValue(Lang.TypeSystem.VoidClassObj.typeInstance);
 
-        *execute(environment: Memory.Environment): IterableIterator<Operation> {
-            environment.pushTempValue(TS.Void.classInstance);
+		return true;
+	}
 
-            yield Operation.tempMemory(this);
+	*execute(environment: Lang.Environment.Environment): IterableIterator<Lang.Flow.Operation> {
+		environment.addOnTempStack(Lang.TypeSystem.VoidClassObj.classInstance);
 
-            return;
-        }
-    }
-}
+		yield Lang.Flow.Operation.tempMemory(this);
 
-module E {
-    export class Void extends Element {
-        getJSONName() { return 'Void' }
-        constructor() {
-            super();
-            this.initialize([
-                [new C.Label('void')]
-            ],
-                ElementType.Type);
-        }
-        constructCode(): L.LogicElement {
-            var logic = new L.Void();
-            logic.setObserver(this);
-            return logic;
-        }
-        getCopy(): Element {
-            return new Void().copyMetadata(this);
-        }
-    }
+		return;
+	}
 }

@@ -1,74 +1,29 @@
-﻿module L {
-    export class Programm extends LogicElement {
-        constructor(
-            public log_list: LogicElement[]
-            ) { super(); }
+﻿import * as Lang from '../language'
 
-        _compile(environment: Compiler.TypeEnvironment): boolean {
-            this.compileBlock(environment, this.log_list);
+export class Programm extends Lang.Logic.LogicElement {
+	constructor(
+		public log_list: Lang.Logic.LogicElement[]
+	) { super(); }
 
-            return this.cs;
-        }
+	_compile(environment: Lang.Compiler.TypeEnvironment): boolean {
+		this.compileBlock(environment, this.log_list);
 
-        *run(environment: Memory.Environment): IterableIterator<Operation> {
-            yield* L.LogicElement.prototype.run.call(this, environment);
+		return this.cs;
+	}
 
-            environment.clearCurrentTempScope();
+	*run(environment: Lang.Environment.Environment): IterableIterator<Lang.Flow.Operation> {
+		yield* Lang.Logic.LogicElement.prototype.run.call(this, environment);
 
-            return;
-        }
+		environment.clearCurrentTempScope();
 
-        *execute(environment: Memory.Environment): IterableIterator<Operation> {
-            environment.flowState = Memory.FlowState.NormalFlow;
+		return;
+	}
 
-            yield* Programm.executeBlock(environment, this.log_list);
+	*execute(environment: Lang.Environment.Environment): IterableIterator<Lang.Flow.Operation> {
+		environment.flowState = Lang.Environment.FlowState.NormalFlow;
 
-            return;
-        }
-    }
+		yield* Programm.executeBlock(environment, this.log_list);
+
+		return;
+	}
 }
-
-module E {
-    class ProgramParent implements ElementParent {
-        constructor(private element: Program) {
-        }
-        detachElement() {
-        }
-        attachElement(element: E.Element) { }
-        containsElement() {
-            return true;
-        }
-        edited() {
-            try {
-                var programm = this.element.constructCode();
-                programm.compile(new Compiler.TypeEnvironment());
-            }
-            catch(any) {
-            }
-        }
-    }
-
-    export class Program extends Element {
-        getJSONName() { return 'Program' }
-        c_list: C.DropList;
-        constructor(list: E.Element[] = []) {
-            super();
-            this.c_list = new C.DropList(this, list);
-            this.initialize([
-                [new C.Label('|>')],
-                [this.c_list],
-                [new C.Label('')],
-            ], ElementType.Program);
-        }
-        constructCode(): L.LogicElement {
-            var logic = new L.Programm(
-                this.c_list.getLogicComponents()
-                );
-            logic.setObserver(this);
-            return logic;
-        }
-        getCopy(): Element {
-            return new Program(this.c_list.getContentCopy()).copyMetadata(this);
-        }
-    }
-} 

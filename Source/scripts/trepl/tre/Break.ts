@@ -1,42 +1,20 @@
-﻿module L {
-    export class Break extends LogicElement {
-        constructor() { super(); }
+﻿import * as Lang from '../language'
 
-        _compile(environment: Compiler.TypeEnvironment): boolean {
-            this.errorIfNot(environment.isInContext(Compiler.Context.Loop), 'You can use "break" keyword only inside a loop');
-            this.flowState = Compiler.FlowState.Break;
+export class Break extends Lang.Logic.LogicElement {
+	constructor() { super(); }
 
-            return this.cs;
-        }
+	_compile(environment: Lang.Compiler.TypeEnvironment): boolean {
+		this.errorIfNot(environment.isInContext(Lang.Compiler.Context.Loop), 'You can use "break" keyword only inside a loop');
+		this.flowState = Lang.Compiler.FlowState.Break;
 
-        *execute(environment: Memory.Environment): IterableIterator<Operation> {
-            environment.flowState = Memory.FlowState.Break;
+		return this.cs;
+	}
 
-            yield Operation.flow(this);
+	*execute(environment: Lang.Environment.Environment): IterableIterator<Lang.Flow.Operation> {
+		environment.flowState = Lang.Environment.FlowState.Break;
 
-            return;
-        }
-    }
+		yield Lang.Flow.Operation.flow(this);
+
+		return;
+	}
 }
-
-module E {
-    export class Break extends Element {
-        getJSONName() { return 'Break' }
-        constructor(mesage: E.Element = null) {
-            super();
-            this.initialize([  // TODO: Zmienić
-                [
-                    new C.Label('break'),
-                ]
-            ], ElementType.Flow);
-        }
-        constructCode(): L.LogicElement {
-            var logic = new L.Break();
-            logic.setObserver(this);
-            return logic;
-        }
-        getCopy(): Element {
-            return new Break().copyMetadata(this);
-        }
-    }
-} 

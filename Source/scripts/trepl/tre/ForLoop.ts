@@ -1,143 +1,84 @@
-﻿module L {
-    export class ForLoop extends LogicElement {
-        constructor(
-            public log_init: LogicElement,
-            public log_condition: LogicElement,
-            public log_operation: LogicElement,
-            public log_list: LogicElement[]
-            ) {
-            super();
-            log_init.setAsInternalOperation();
-            log_condition.setAsInternalOperation();
-            log_operation.setAsInternalOperation();
-        }
+﻿import * as Lang from '../language'
 
-        _compile(environment: Compiler.TypeEnvironment): boolean {
-            environment.addScope();
+export class ForLoop extends Lang.Logic.LogicElement {
+	constructor(
+		public log_init: Lang.Logic.LogicElement,
+		public log_condition: Lang.Logic.LogicElement,
+		public log_operation: Lang.Logic.LogicElement,
+		public log_list: Lang.Logic.LogicElement[]
+	) {
+		super();
+		log_init.setAsInternalOperation();
+		log_condition.setAsInternalOperation();
+		log_operation.setAsInternalOperation();
+	}
 
-            this.cs = this.log_init.compile(environment) && this.cs;
-            this.cs = this.log_condition.compile(environment) && this.cs;
-            this.cs = this.log_operation.compile(environment) && this.cs;
+	_compile(environment: Lang.Compiler.TypeEnvironment): boolean {
+		environment.addScope();
 
-            environment.addContext(Compiler.Context.Loop);
-            this.compileBlock(environment, this.log_list);
-            environment.removeContext();
+		this.cs = this.log_init.compile(environment) && this.cs;
+		this.cs = this.log_condition.compile(environment) && this.cs;
+		this.cs = this.log_operation.compile(environment) && this.cs;
 
-            environment.removeScope();
+		environment.addContext(Lang.Compiler.Context.Loop);
+		this.compileBlock(environment, this.log_list);
+		environment.removeContext();
 
-            if (!this.cs) return false;
+		environment.removeScope();
 
-            this.errorIfTypeMismatch(TS.rValue(TS.Boolean.objectTypeInstance), this.log_condition.returns, this.log_condition);
+		if (!this.cs) return false;
 
-            return this.cs;
-        }
+		this.errorIfTypeMismatch(Lang.TypeSystem.rValue(Lang.TypeSystem.BooleanClassObj.objectTypeInstance), this.log_condition.returns, this.log_condition);
 
-        *execute(environment: Memory.Environment): IterableIterator<Operation> {
-            environment.addScope('For loop');
+		return this.cs;
+	}
 
-            yield Operation.memory(this);
+	*execute(environment: Lang.Environment.Environment): IterableIterator<Lang.Flow.Operation> {
+		environment.addScope('For loop');
 
-            yield* this.log_init.run(environment);
-            yield Operation.flow(this.log_init);
+		yield Lang.Flow.Operation.memory(this);
 
-            environment.clearCurrentTempScope();
+		yield* this.log_init.run(environment);
+		yield Lang.Flow.Operation.flow(this.log_init);
 
-            while (true) {
-                yield* this.log_condition.run(environment);
-                yield Operation.flow(this.log_condition);
+		environment.clearCurrentTempScope();
 
-                var condition = <TS.BaseClassObject> environment.popTempValue().getValue();
-                environment.clearCurrentTempScope();
+		while (true) {
+			yield* this.log_condition.run(environment);
+			yield Lang.Flow.Operation.flow(this.log_condition);
 
-                if (!condition.rawValue)
-                    break;
+			var condition = <Lang.TypeSystem.BaseClassInstanceObj>environment.popFromTempStack().getValue();
+			environment.clearCurrentTempScope();
 
-                environment.addScope('For loop body');
-                yield* ForLoop.executeBlock(environment, this.log_list);
-                var removedScope = environment.removeScope();
+			if (!condition.rawValue)
+				break;
 
-                if (environment.flowState == Memory.FlowState.Break) {
-                    environment.flowState = Memory.FlowState.NormalFlow;
-                    environment.clearCurrentTempScope();
-                    break;
-                }
-                if (environment.flowState == Memory.FlowState.Return) {
-                    break;
-                }
-                else {
-                    environment.flowState = Memory.FlowState.NormalFlow;
-                }
+			environment.addScope('For loop body');
+			yield* ForLoop.executeBlock(environment, this.log_list);
+			var removedScope = environment.removeScope();
 
-                yield* this.log_operation.run(environment);
-                yield Operation.flow(this.log_operation);
+			if (environment.flowState == Lang.Environment.FlowState.Break) {
+				environment.flowState = Lang.Environment.FlowState.NormalFlow;
+				environment.clearCurrentTempScope();
+				break;
+			}
+			if (environment.flowState == Lang.Environment.FlowState.Return) {
+				break;
+			}
+			else {
+				environment.flowState = Lang.Environment.FlowState.NormalFlow;
+			}
 
-                environment.clearCurrentTempScope();
-            }
+			yield* this.log_operation.run(environment);
+			yield Lang.Flow.Operation.flow(this.log_operation);
 
-            var removedScope = environment.removeScope();
+			environment.clearCurrentTempScope();
+		}
 
-            //yield Operation.flow(this);
+		var removedScope = environment.removeScope();
 
-            return;
-        }
-    }
+		//yield Operation.flow(this);
+
+		return;
+	}
 }
-
-module E {
-    export class ForLoop extends Element {
-        getJSONName() { return 'ForLoop' }
-        c_init: C.DropField
-        c_condition: C.DropField
-        c_operation: C.DropField
-        c_list: C.DropList
-        constructor(
-            init: E.Element = null,
-            cond: E.Element = null,
-            oper: E.Element = null,
-            list: E.Element[] = []) {
-            super();
-            this.c_init = new C.DropField(this, init)
-            this.c_condition = new C.DropField(this, cond)
-            this.c_operation = new C.DropField(this, oper)
-            this.c_list = new C.DropList(this, list)
-            this.initialize([  // TODO: Zmienić
-                [
-                    new C.Label('for ('),
-                    this.c_init,
-                    new C.Label('; '),
-                    this.c_condition,
-                    new C.Label('; '),
-                    this.c_operation,
-                    new C.Label(')'),
-                ],
-                [
-                    new C.Label('{'),
-                ],
-                [
-                    this.c_list,
-                ],
-                [
-                    new C.Label('}'),
-                ]
-            ],
-                ElementType.Flow);
-        }
-        constructCode(): L.LogicElement {
-            var logic = new L.ForLoop(
-                this.c_init.constructCode(),
-                this.c_condition.constructCode(),
-                this.c_operation.constructCode(),
-                this.c_list.getLogicComponents()
-                );
-            logic.setObserver(this);
-            return logic;
-        }
-        getCopy(): Element {
-            return new ForLoop(
-                this.c_init.getContentCopy(),
-                this.c_condition.getContentCopy(),
-                this.c_operation.getContentCopy(),
-                this.c_list.getContentCopy()).copyMetadata(this);
-        }
-    }
-} 

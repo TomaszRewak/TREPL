@@ -1,66 +1,34 @@
-﻿module L {
-    export class Ref extends LogicElement {
-        constructor(
-            public log_type: LogicElement
-            ) { super(); }
+﻿import * as Lang from '../language'
 
-        _compile(environment: Compiler.TypeEnvironment): boolean {
+export class Ref extends Lang.Logic.LogicElement {
+	constructor(
+		public log_type: Lang.Logic.LogicElement
+	) { super(); }
 
-            this.cs = this.log_type.compile(environment) && this.cs;
-            if (!this.cs) return false;
+	_compile(environment: Lang.Compiler.TypeEnvironment): boolean {
 
-            this.errorIfEmpty(this.log_type);
-            if (!this.cs) return false;
+		this.cs = this.log_type.compile(environment) && this.cs;
+		if (!this.cs) return false;
 
-            this.errorIfNotPrototype(this.log_type.returnsType(), this.log_type);
-            if (!this.cs) return false;
+		this.errorIfEmpty(this.log_type);
+		if (!this.cs) return false;
 
-            var prototypeType = <TS.PrototypeType> this.log_type.returnsType();
+		this.errorIfNotPrototype(this.log_type.returnsType(), this.log_type);
+		if (!this.cs) return false;
 
-            this.returns = new TS.RValueOfType(new TS.ReferenceClassType(prototypeType));
+		var prototypeType = <Lang.TypeSystem.PrototypeType>this.log_type.returnsType();
 
-            return this.cs;
-        }
+		this.returns = new Lang.TypeSystem.RValue(new Lang.TypeSystem.ReferenceClassType(prototypeType));
 
-        *execute(environment: Memory.Environment): IterableIterator<Operation> {
-            yield* this.log_type.run(environment);
+		return this.cs;
+	}
 
-            var tempValue = <TS.Prototype> environment.popTempValue().getValue();
-            environment.pushTempValue(new TS.ReferenceClass(tempValue));
+	*execute(environment: Lang.Environment.Environment): IterableIterator<Lang.Flow.Operation> {
 
-            yield Operation.tempMemory(this);
+		environment.addOnTempStack(new Lang.TypeSystem.ReferenceClassObj());
 
-            return;
-        }
-    }
+		yield Lang.Flow.Operation.tempMemory(this);
+
+		return;
+	}
 }
-
-module E {
-    export class Ref extends Element {
-        getJSONName() { return 'Ref' }
-        c_type: C.DropField
-        constructor(typ: Element = null) {
-            super();
-            this.c_type = new C.DropField(this, typ)
-            this.initialize([
-                [
-                    this.c_type,
-                    new C.Label('ref'),
-                ]
-            ],
-                ElementType.Type);
-        }
-        constructCode(): L.LogicElement {
-            var logic = new L.Ref(
-                this.c_type.constructCode()
-                );
-            logic.setObserver(this);
-            return logic;
-        }
-        getCopy(): Element {
-            return new Ref(
-                this.c_type.getContentCopy()
-                ).copyMetadata(this);
-        }
-    }
-} 

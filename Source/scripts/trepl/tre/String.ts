@@ -1,39 +1,19 @@
-﻿module L {
-    export class String extends LogicElement {
-        constructor() { super(); }
+﻿import * as Lang from '../language'
 
-        _compile(environment: Compiler.TypeEnvironment): boolean {
-            this.returns = new TS.RValueOfType(TS.String.typeInstance);
+export class String extends Lang.Logic.LogicElement {
+	constructor() { super(); }
 
-            return true;
-        }
+	_compile(environment: Lang.Compiler.TypeEnvironment): boolean {
+		this.returns = new Lang.TypeSystem.RValue(Lang.TypeSystem.StringClassObj.typeInstance);
 
-        *execute(environment: Memory.Environment): IterableIterator<Operation> {
-            environment.pushTempValue(TS.String.classInstance);
+		return true;
+	}
 
-            yield Operation.tempMemory(this);
+	*execute(environment: Lang.Environment.Environment): IterableIterator<Lang.Flow.Operation> {
+		environment.addOnTempStack(Lang.TypeSystem.StringClassObj.classInstance);
 
-            return;
-        }
-    }
+		yield Lang.Flow.Operation.tempMemory(this);
+
+		return;
+	}
 }
-
-module E {
-    export class String extends Element {
-        getJSONName() { return 'String' }
-        constructor() {
-            super();
-            this.initialize([
-                [new C.Label('string')]
-            ], ElementType.Type);
-        }
-        constructCode(): L.LogicElement {
-            var logic = new L.String();
-            logic.setObserver(this);
-            return logic;
-        }
-        getCopy(): Element {
-            return new String().copyMetadata(this);
-        }
-    }
-} 

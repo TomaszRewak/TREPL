@@ -2,7 +2,7 @@
 import * as Instance from './Instance'
 import * as Function from './Function'
 import * as BaseTypes from './BaseTypes'
-import * as MemoryFields from '../memory_fields'
+import * as Memory from '../memory'
 import { ImplicitDeclaration } from '../flow/Declaration'
 import { rValue } from './StaticResult'
 
@@ -57,7 +57,7 @@ export class ReferenceClassType extends Prototype.PrototypeType {
 export class ReferenceObj extends Instance.InstanceObj {
 	observer: TSO.ReferenceObserver = new TSO.ReferenceObserver(this);
 	constructor(
-		public reference: MemoryFields.MemoryField
+		public reference: Memory.MemoryField
 	) {
 		super(new ReferenceClassObj());
 
@@ -86,7 +86,7 @@ export class ReferenceType extends Instance.InstanceType {
 export class Alias extends ReferenceObj {
 	observer: TSO.AliasObserver = new TSO.AliasObserver(this);
 
-	public dereference(): MemoryFields.MemoryField {
+	public dereference(): Memory.MemoryField {
 		return this.reference;
 	}
 }

@@ -1,106 +1,77 @@
-﻿module L {
-    export class PathRef extends LogicElement {
-        constructor(
-            public log_left: LogicElement,
-            public name: string
-		) { super(); }
+﻿import * as Lang from '../language'
 
-        _compile(environment: Compiler.TypeEnvironment) {
-            this.errorIfEmpty(this.log_left);
-            this.cs = this.log_left.compile(environment) && this.cs;
-            if (!this.cs) return false;
+export class PathRef extends Lang.Logic.LogicElement {
+	constructor(
+		public log_left: Lang.Logic.LogicElement,
+		public name: string
+	) { super(); }
 
-			this.errorIfNotReference(this.log_left.returns.varType, this.log_left);
-            if (!this.cs) return false;
+	_compile(environment: Lang.Compiler.TypeEnvironment) {
+		this.errorIfEmpty(this.log_left);
+		this.cs = this.log_left.compile(environment) && this.cs;
+		if (!this.cs) return false;
 
-            var leftType = (<TS.ReferenceType>(<TS.InstanceType>this.log_left.returns.varType)).prototypeType.referencedPrototypeType.declaresType();
+		this.errorIfNotReference(this.log_left.returns.varType, this.log_left);
+		if (!this.cs) return false;
 
-            this.innerContext = leftType;
+		var leftType = (<Lang.TypeSystem.ReferenceType>(<Lang.TypeSystem.InstanceType>this.log_left.returns.varType)).prototypeType.referencedPrototypeType.declaresType();
 
-            var leftPrototype = leftType.prototypeType;
+		this.innerContext = leftType;
 
-            if (leftPrototype instanceof TS.ClassType) {
-                this.errorIfNot(leftPrototype.hasField(this.name) || leftPrototype.hasMethod(this.name), 'None field nor method of this name was found');
-                if (!this.cs) return false;
+		var leftPrototype = leftType.prototypeType;
 
-                if (leftPrototype.hasField(this.name))
-                    this.returns = new TS.LValueOfType(leftPrototype.fields[this.name].typ);
-                else
-                    this.returns = new TS.RValueOfType(leftPrototype.functions[this.name].declaresType());
-            }
-            else {
-                this.errorIfNot(leftPrototype.hasMethod(this.name), 'None method for this name was found');
-                if (!this.cs) return false;
-                this.returns = new TS.RValueOfType(leftPrototype.functions[this.name].declaresType());
-            }
+		if (leftPrototype instanceof Lang.TypeSystem.ClassType) {
+			this.errorIfNot(leftPrototype.hasField(this.name) || leftPrototype.hasMethod(this.name), 'None field nor method of this name was found');
+			if (!this.cs) return false;
 
-            return this.cs;
-        }
+			if (leftPrototype.hasField(this.name))
+				this.returns = new Lang.TypeSystem.LValue(leftPrototype.fields[this.name].typ);
+			else
+				this.returns = new Lang.TypeSystem.RValue(leftPrototype.functions[this.name].declaresType());
+		}
+		else {
+			this.errorIfNot(leftPrototype.hasMethod(this.name), 'None method for this name was found');
+			if (!this.cs) return false;
+			this.returns = new Lang.TypeSystem.RValue(leftPrototype.functions[this.name].declaresType());
+		}
 
-        *execute(environment: Memory.Environment): IterableIterator<Operation> {
-            yield* this.log_left.run(environment);
+		return this.cs;
+	}
 
-            var isAlias = true;
-            var thisMemoryField = (<TS.Reference>environment.popTempValue().getValue()).reference;
-			if (!thisMemoryField) throw 'Null reference exception';
+	*execute(environment: Lang.Environment.Environment): IterableIterator<Lang.Flow.Operation> {
+		yield* this.log_left.run(environment);
 
-            var valueLeft = <TS.Instance>thisMemoryField.getValue();
+		var isAlias = true;
+		var thisMemoryField = (<Lang.TypeSystem.ReferenceObj>environment.popFromTempStack().getValue()).reference;
+		if (!thisMemoryField) throw 'Null reference exception';
 
-            if (valueLeft instanceof TS.ClassObject) {
-                if (valueLeft.hasFieldValue(this.name)) {
-                    var customTypeField = valueLeft.getFieldValue(this.name);
-                    environment.pushTempAlias(customTypeField);
-                }
-                else if (valueLeft.hasMethod(this.name)) {
-                    var method = valueLeft.getMethod(thisMemoryField, this.name, isAlias);
-                    environment.pushTempValue(method);
-                }
-                else {
-                    throw 'No such field or method was for this object';
-                }
-            }
-            else {
-                if (valueLeft.hasMethod(this.name)) {
-                    var method = valueLeft.getMethod(thisMemoryField, this.name, isAlias);
-                    environment.pushTempValue(method);
-                }
-                else {
-                    throw 'No such field or method was for this object';
-                }
-            }
+		var valueLeft = <Lang.TypeSystem.InstanceObj>thisMemoryField.getValue();
 
-            yield Operation.tempMemory(this);
+		if (valueLeft instanceof Lang.TypeSystem.ClassInstanceObj) {
+			if (valueLeft.hasFieldValue(this.name)) {
+				var customTypeField = valueLeft.getFieldValue(this.name);
+				environment.addOnTempStack(new Lang.TypeSystem.Alias(customTypeField));
+			}
+			else if (valueLeft.hasMethod(this.name)) {
+				var method = valueLeft.getMethod(thisMemoryField, this.name, isAlias);
+				environment.addOnTempStack(method);
+			}
+			else {
+				throw 'No such field or method was for this object';
+			}
+		}
+		else {
+			if (valueLeft.hasMethod(this.name)) {
+				var method = valueLeft.getMethod(thisMemoryField, this.name, isAlias);
+				environment.addOnTempStack(method);
+			}
+			else {
+				throw 'No such field or method was for this object';
+			}
+		}
 
-            return;
-        }
-    }
+		yield Lang.Flow.Operation.tempMemory(this);
+
+		return;
+	}
 }
-
-module E {
-    export class PathRef extends Element {
-        getJSONName() { return 'PathRef' }
-        c_left: C.DropField
-        c_right: C.PenetratingTextField
-        constructor(element: E.Element = null, name = 'foo') {
-            super();
-            this.c_left = new C.DropField(this, element)
-            this.c_right = new C.PenetratingTextField(this, name)
-            this.initialize([
-                [this.c_left, new C.Label('->'), this.c_right]
-            ], ElementType.Type);
-        }
-        constructCode(): L.LogicElement {
-            var logic = new L.PathRef(
-                this.c_left.constructCode(),
-                this.c_right.getRawData()
-			);
-            logic.setObserver(this);
-            return logic;
-        }
-        getCopy(): Element {
-            return new PathRef(
-                this.c_left.getContentCopy(),
-                this.c_right.getRawData()).copyMetadata(this);
-        }
-    }
-} 

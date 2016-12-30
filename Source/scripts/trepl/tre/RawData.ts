@@ -1,81 +1,47 @@
-﻿module L {
-    export class RawData extends LogicElement {
-        constructor(
-            public rawData: any
-            ) { super(); }
+﻿import * as Lang from '../language'
 
-        observer: E.RawData;
+export class RawData extends Lang.Logic.LogicElement {
+	constructor(
+		public rawData: any
+	) { super(); }
 
-        _compile(environment: Compiler.TypeEnvironment) {
-            var value: string = this.rawData;
-            var numberValue: number = parseInt(this.rawData);
+	observer: Lang.Observers.RawDataElementObserver;
 
-            if (!isNaN(numberValue)) {
-                this.observer.isNumber(true);
-                this.returns = new TS.RValueOfType(new TS.ClassObjectType(TS.Int.typeInstance));
-            }
-            else {
-                this.observer.isNumber(false);
-                var typeField = environment.getElement(value);
+	_compile(environment: Lang.Compiler.TypeEnvironment) {
+		var value: string = this.rawData;
+		var numberValue: number = parseInt(this.rawData);
 
-                this.errorIf(!typeField, 'No field of that name was found in this scope');
-                if (!this.cs) return false;
+		if (!isNaN(numberValue)) {
+			this.observer.isNumber(true);
+			this.returns = new Lang.TypeSystem.RValue(new Lang.TypeSystem.ClassInstanceType(Lang.TypeSystem.IntClassObj.typeInstance));
+		}
+		else {
+			this.observer.isNumber(false);
+			var typeField = environment.getElement(value);
 
-                this.returns = new TS.LValueOfType(typeField.typ);
-            }
+			this.errorIf(!typeField, 'No field of that name was found in this scope');
+			if (!this.cs) return false;
 
-            return this.cs;
-        }
+			this.returns = new Lang.TypeSystem.LValue(typeField.typ);
+		}
 
-        *execute(environment: Memory.Environment): IterableIterator<Operation> {
-            var rawData = <string> this.rawData;
-            var value: number = parseInt(this.rawData);
+		return this.cs;
+	}
 
-            if (!isNaN(value)) {
-                environment.pushTempValue(TS.Int.classInstance.getObjectOfValue(value));
-            }
-            else {
-                var stackField = environment.getFromStack(rawData);
-                environment.pushTempAlias(stackField);
-            }
+	*execute(environment: Lang.Environment.Environment): IterableIterator<Lang.Flow.Operation> {
+		var rawData = <string>this.rawData;
+		var value: number = parseInt(this.rawData);
 
-            yield Operation.tempMemory(this);
+		if (!isNaN(value)) {
+			environment.addOnTempStack(Lang.TypeSystem.IntClassObj.classInstance.getObjectOfValue(value));
+		}
+		else {
+			var stackField = environment.getFromStack(rawData);
+			environment.addOnTempStack(new Lang.TypeSystem.Alias(stackField));
+		}
 
-            return;
-        }
-    }
-} 
+		yield Lang.Flow.Operation.tempMemory(this);
 
-module E {
-    export class RawData extends Element {
-        getJSONName() { return 'RawData' }
-        c_data: C.TextField;
-        constructor(value: string = 'foo') {
-            super();
-            this.c_data = new C.TextField(this, value);
-            this.initialize([
-                [this.c_data]
-            ], ElementType.Value);
-            this._isNumber = true;
-        }
-        constructCode(): L.LogicElement {
-            var logic = new L.RawData(
-                this.c_data.getRawData()
-                );
-            logic.setObserver(this);
-            return logic;
-        }
-        getCopy(): Element {
-            return new RawData(this.c_data.getRawData()).copyMetadata(this);
-        }
-        private _isNumber;
-        isNumber(num: boolean) {
-            if (num != this._isNumber) {
-                this._isNumber = num;
-
-                this.clearStyles();
-                this.setStyle(num ? ElementType.Value : ElementType.Variable);
-            }
-        }
-    }
+		return;
+	}
 }

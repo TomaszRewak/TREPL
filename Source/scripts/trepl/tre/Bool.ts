@@ -1,39 +1,19 @@
-﻿module L {
-    export class Bool extends LogicElement {
-        constructor() { super(); }
+﻿import * as Lang from '../language'
 
-        _compile(environment: Compiler.TypeEnvironment): boolean {
-            this.returns = new TS.RValueOfType(TS.Boolean.typeInstance);
+export class Bool extends Lang.Logic.LogicElement {
+	constructor() { super(); }
 
-            return true;
-        }
+	_compile(environment: Lang.Compiler.TypeEnvironment): boolean {
+		this.returns = new Lang.TypeSystem.RValue(Lang.TypeSystem.BooleanClassObj.typeInstance);
 
-        *execute(environment: Memory.Environment): IterableIterator<Operation> {
-            environment.pushTempValue(TS.Boolean.classInstance);
+		return true;
+	}
 
-            yield Operation.tempMemory(this);
+	*execute(environment: Lang.Environment.Environment): IterableIterator<Lang.Flow.Operation> {
+		environment.addOnTempStack(Lang.TypeSystem.BooleanClassObj.classInstance);
 
-            return;
-        }
-    }
+		yield Lang.Flow.Operation.tempMemory(this);
+
+		return;
+	}
 }
-
-module E {
-    export class Bool extends Element {
-        getJSONName() { return 'Bool' }
-        constructor() {
-            super();
-            this.initialize([
-                [new C.Label('bool')]
-            ], ElementType.Type);
-        }
-        constructCode(): L.LogicElement {
-            var logic = new L.Bool();
-            logic.setObserver(this);
-            return logic;
-        }
-        getCopy(): Element {
-            return new Bool().copyMetadata(this);
-        }
-    }
-} 

@@ -15,7 +15,7 @@ export class Environment {
 	constructor() {
 		this.addScope('Environment');
 	}
-	addValueToStack(val: Memory.Value, name: string) {
+	addOnStack(val: Memory.Value, name: string) {
 		if (this.stack.hasElement(name)) {
 			this.stack.getElement(name).observer.visible(false);
 		}
@@ -70,7 +70,21 @@ export class Environment {
 	// Manages scopes for temporery values (like the resault of applying math operatos)
 	private tempStackLevel: number = 0;
 	private tempStackTop: DataStructures.Stack<Memory.TempStackField> = null;
-	addTempStackScope() {
+	addOnTempStack(value: Memory.Value) {
+		var newStackField = new Memory.TempStackField(this.tempStackLevel);
+		newStackField.setValue(value);
+		this.tempStackTop = DataStructures.Stack.push(newStackField, this.tempStackTop);
+		this.observer.addFieldToTempStack(newStackField);
+	}
+	popFromTempStack(): Memory.MemoryField {
+		var field = DataStructures.Stack.top(this.tempStackTop);
+		this.tempStackTop = DataStructures.Stack.pop(this.tempStackTop);
+		this.observer.removeFieldFromTempStack(field);
+
+		var dereferenced = field.getValue().dereference();
+		return dereferenced ? dereferenced : field;
+	}
+	addTempScope() {
 		this.tempStackLevel++;
 	}
 	removeTempScope() {
@@ -80,29 +94,15 @@ export class Environment {
 	}
 	clearCurrentTempScope() {
 		while (this.tempStackTop && this.tempStackTop.top.level > this.tempStackLevel) {
-			this.popTempValue();
+			this.popFromTempStack();
 		}
 	}
 	hasValueOnCurrentLevel(): boolean {
 		return this.hasTempValue() && this.tempStackTop.top.level == this.tempStackLevel;
 	}
-	pushTempValue(value: Memory.Value) {
-		var newStackField = new Memory.TempStackField(this.tempStackLevel);
-		newStackField.setValue(value);
-		this.tempStackTop = DataStructures.Stack.push(newStackField, this.tempStackTop);
-		this.observer.addFieldToTempStack(newStackField);
+	isTempValueAlias(): boolean {
+		return this.tempStackTop.top.getValue().dereference() != null;
 	}
-	popTempValue(): Memory.MemoryField {
-		var field = DataStructures.Stack.top(this.tempStackTop);
-		this.tempStackTop = DataStructures.Stack.pop(this.tempStackTop);
-		this.observer.removeFieldFromTempStack(field);
-
-		var dereferenced = field.getValue().dereference();
-		return dereferenced ? dereferenced : field;
-	}
-	//isTempValueAlias(): boolean {
-	//	return this.tempStackTop.top.getValue().dereference() != null;
-	//}
 	passTempValue() {
 		if (this.hasTempValue())
 			this.tempStackTop.top.level = this.tempStackLevel;

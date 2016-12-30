@@ -1,4 +1,4 @@
-﻿import * as Observers from '../../language/observers'
+﻿import * as Lang from '../../language'
 
 import { ElementType } from './ElementType'
 import { ElementParent } from './ElementParent'
@@ -18,7 +18,7 @@ styles[ElementType.Other] = 'otherCodeElement';
 styles[ElementType.Program] = 'programCodeElement';
 
 // Represents single element of the programm composed of predefind components and provids interface for user interaction
-export abstract class Element implements Observers.LogicElementObserver {
+export abstract class Element implements Lang.Observers.LogicElementObserver {
 	// Real JQuery element that has been generated for this element
 	private composedElement: JQuery = null;
 	// Parent holding element
@@ -100,7 +100,7 @@ export abstract class Element implements Observers.LogicElementObserver {
 		return this.composedElement;
 	}
 
-	constructCode(): LogicElement {
+	constructCode(): Lang.Logic.LogicElement {
 		return null;
 	}
 
@@ -132,9 +132,9 @@ export abstract class Element implements Observers.LogicElementObserver {
 	}
 
 	private wasCompiled = false;
-	private resultType: StaticResult;
-	private visibleNames: Stack<Compiler.NamedType> = null;
-	private innerContext: Type = null;
+	private resultType: Lang.TypeSystem.StaticResult;
+	private visibleNames: Lang.DataStructures.Stack<Lang.Compiler.NamedType> = null;
+	private innerContext: Lang.TypeSystem.Type = null;
 	getDescription(): string {
 		if (!this.wasCompiled)
 			return '';
@@ -144,7 +144,7 @@ export abstract class Element implements Observers.LogicElementObserver {
 		else
 			return 'compilation error'
 	}
-	getInnerContext(): Type {
+	getInnerContext(): Lang.TypeSystem.Type {
 		return this.innerContext;
 	}
 
@@ -153,7 +153,7 @@ export abstract class Element implements Observers.LogicElementObserver {
 			this.parent.edited();
 	}
 
-	compiled(resultType: StaticResult, visibleNames: Stack<Compiler.NamedType>, innerContext: Type) {
+	compiled(resultType: Lang.TypeSystem.StaticResult, visibleNames: Lang.DataStructures.Stack<Lang.Compiler.NamedType>, innerContext: Lang.TypeSystem.Type) {
 		this.resultType = resultType;
 		this.visibleNames = visibleNames;
 		this.innerContext = innerContext;

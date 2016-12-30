@@ -1,58 +1,30 @@
-﻿module L {
-    export class Return extends LogicElement {
-        constructor(
-            public log_value: LogicElement
-            ) { super(); }
+﻿import * as Lang from '../language'
 
-        _compile(environment: Compiler.TypeEnvironment): boolean {
-            this.errorIfEmpty(this.log_value);
-            this.cs = this.log_value.compile(environment) && this.cs;
-            this.errorIfNot(environment.isInContext(Compiler.Context.Function), 'You can return valus only form inside of a function');
-            this.errorIfTypeMismatch(TS.rValue(environment.getFunctionExpection()), this.log_value.returns, this);
-            this.flowState = Compiler.FlowState.Return;
-            if (!this.cs) return false;
+export class Return extends Lang.Logic.LogicElement {
+	constructor(
+		public log_value: Lang.Logic.LogicElement
+	) { super(); }
 
-            return this.cs;
-        }
+	_compile(environment: Lang.Compiler.TypeEnvironment): boolean {
+		this.errorIfEmpty(this.log_value);
+		this.cs = this.log_value.compile(environment) && this.cs;
+		this.errorIfNot(environment.isInContext(Lang.Compiler.Context.Function), 'You can return valus only form inside of a function');
+		this.errorIfTypeMismatch(Lang.TypeSystem.rValue(environment.getFunctionExpection()), this.log_value.returns, this);
+		this.flowState = Lang.Compiler.FlowState.Return;
+		if (!this.cs) return false;
 
-        *execute(environment: Memory.Environment): IterableIterator<Operation> {
-            yield* this.log_value.run(environment);
+		return this.cs;
+	}
 
-            var value = environment.popTempValue().getValue().getCopy();
-            environment.pushTempValue(value);
-            environment.flowState = Memory.FlowState.Return;
+	*execute(environment: Lang.Environment.Environment): IterableIterator<Lang.Flow.Operation> {
+		yield* this.log_value.run(environment);
 
-            yield Operation.flow(this);
+		var value = environment.popFromTempStack().getValue().getCopy();
+		environment.addOnTempStack(value);
+		environment.flowState = Lang.Environment.FlowState.Return;
 
-            return;
-        }
-    }
+		yield Lang.Flow.Operation.flow(this);
+
+		return;
+	}
 }
-
-module E {
-    export class Return extends Element {
-        getJSONName() { return 'Return' }
-        c_value: C.DropField
-        constructor(mesage: E.Element = null) {
-            super();
-            this.c_value = new C.DropField(this, mesage)
-            this.initialize([  // TODO: Zmienić
-                [
-                    new C.Label('return'),
-                    this.c_value,
-                ]
-            ], ElementType.Function);
-        }
-        constructCode(): L.LogicElement {
-            var logic = new L.Return(
-                this.c_value.constructCode()
-                );
-            logic.setObserver(this);
-            return logic;
-        }
-        getCopy(): Element {
-            return new Return(
-                this.c_value.getContentCopy()).copyMetadata(this);
-        }
-    }
-} 

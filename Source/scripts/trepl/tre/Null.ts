@@ -1,41 +1,19 @@
-﻿module L {
-    export class Null extends LogicElement {
-        constructor() { super(); }
+﻿import * as Lang from '../language'
 
-        _compile(environment: Compiler.TypeEnvironment): boolean {
-            this.returns = new TS.RValueOfType(new TS.ReferenceType(new TS.ReferenceClassType(TS.Void.typeInstance)));
+export class Null extends Lang.Logic.LogicElement {
+	constructor() { super(); }
 
-            return true;
-        }
+	_compile(environment: Lang.Compiler.TypeEnvironment): boolean {
+		this.returns = new Lang.TypeSystem.RValue(new Lang.TypeSystem.ReferenceType(new Lang.TypeSystem.ReferenceClassType(Lang.TypeSystem.VoidClassObj.typeInstance)));
 
-        *execute(environment: Memory.Environment): IterableIterator<Operation> {
-            environment.pushTempValue(new TS.Reference(new TS.ReferenceClass(TS.Void.classInstance), null));
+		return true;
+	}
 
-            yield Operation.tempMemory(this);
+	*execute(environment: Lang.Environment.Environment): IterableIterator<Lang.Flow.Operation> {
+		environment.addOnTempStack(new Lang.TypeSystem.ReferenceObj(null));
 
-            return;
-        }
-    }
+		yield Lang.Flow.Operation.tempMemory(this);
+
+		return;
+	}
 }
-
-module E {
-    export class Null extends Element {
-        getJSONName() { return 'Null' }
-        c_name: C.Label;
-        constructor() {
-            super();
-            this.c_name = new C.Label('null');
-            this.initialize([
-                [this.c_name]
-            ], ElementType.Value);
-        }
-        constructCode(): L.LogicElement {
-            var logic = new L.Null();
-            logic.setObserver(this);
-            return logic;
-        }
-        getCopy(): Element {
-            return new Null().copyMetadata(this);
-        }
-    }
-} 

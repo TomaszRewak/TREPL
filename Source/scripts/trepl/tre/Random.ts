@@ -1,38 +1,17 @@
-﻿module L {
-    export class Random extends LogicElement {
-        constructor(
-            ) { super(); }
+﻿import * as Lang from '../language'
 
-        _compile(environment: Compiler.TypeEnvironment) {
-            this.returns = new TS.RValueOfType(new TS.ClassObjectType(TS.Int.typeInstance));
-            return this.cs;
-        }
+export class Random extends Lang.Logic.LogicElement {
+	constructor(
+	) { super(); }
 
-        *execute(environment: Memory.Environment): IterableIterator<Operation> {
-            environment.pushTempValue(TS.Int.classInstance.getObjectOfValue(Math.floor(Math.random() * 100)));
+	_compile(environment: Lang.Compiler.TypeEnvironment) {
+		this.returns = new Lang.TypeSystem.RValue(new Lang.TypeSystem.ClassInstanceType(Lang.TypeSystem.IntClassObj.typeInstance));
+		return this.cs;
+	}
 
-            return;
-        }
-    }
-}
+	*execute(environment: Lang.Environment.Environment): IterableIterator<Lang.Flow.Operation> {
+		environment.addOnTempStack(Lang.TypeSystem.IntClassObj.classInstance.getObjectOfValue(Math.floor(Math.random() * 100)));
 
-module E {
-    export class Random extends Element {
-        getJSONName() { return 'Random' }
-        constructor() {
-            super();
-            this.initialize([
-                [new C.Label('random()')]
-            ], ElementType.Value);
-        }
-        constructCode(): L.LogicElement {
-            var logic = new L.Random(
-                );
-            logic.setObserver(this);
-            return logic;
-        }
-        getCopy(): Element {
-            return new Random().copyMetadata(this);
-        }
-    }
+		return;
+	}
 }

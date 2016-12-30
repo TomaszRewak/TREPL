@@ -1,93 +1,57 @@
-﻿module L {
-    export class ElementAt extends LogicElement {
-        constructor(
-            public log_array: LogicElement,
-            public log_index: LogicElement
-            ) { super(); }
+﻿import * as Lang from '../language'
 
-        _compile(environment: Compiler.TypeEnvironment): boolean {
-            this.errorIfEmpty(this.log_array);
-            this.errorIfEmpty(this.log_index);
-            this.cs = this.log_array.compile(environment) && this.cs;
-            this.cs = this.log_index.compile(environment) && this.cs;
+export class ElementAt extends Lang.Logic.LogicElement {
+	constructor(
+		public log_array: Lang.Logic.LogicElement,
+		public log_index: Lang.Logic.LogicElement
+	) { super(); }
 
-            if (!this.cs) return false;
+	_compile(environment: Lang.Compiler.TypeEnvironment): boolean {
+		this.errorIfEmpty(this.log_array);
+		this.errorIfEmpty(this.log_index);
+		this.cs = this.log_array.compile(environment) && this.cs;
+		this.cs = this.log_index.compile(environment) && this.cs;
 
-            this.errorIfNotInstance(this.log_index.returnsType(), this.log_index);
-            if (!this.cs) return false;
+		if (!this.cs) return false;
 
-            var leftType = this.log_array.returnsType();
-            while (leftType instanceof TS.ReferenceType)
-                leftType = (<TS.ReferenceType> leftType).prototypeType.referencedPrototypeType.declaresType();
-            
-            var arrayInstance = <TS.InstanceType> leftType;
-            var indexInstance = <TS.InstanceType> this.log_index.returnsType();
+		this.errorIfNotInstance(this.log_index.returnsType(), this.log_index);
+		if (!this.cs) return false;
 
-            this.errorIfNot(arrayInstance instanceof TS.ArrayType, 'Expected array', this.log_array);
-            if (!this.cs) return false;
+		var leftType = this.log_array.returnsType();
+		while (leftType instanceof Lang.TypeSystem.ReferenceType)
+			leftType = (<Lang.TypeSystem.ReferenceType>leftType).prototypeType.referencedPrototypeType.declaresType();
 
-            var arrayType = (<TS.ArrayType> arrayInstance).prototypeType;
+		var arrayInstance = <Lang.TypeSystem.InstanceType>leftType;
+		var indexInstance = <Lang.TypeSystem.InstanceType>this.log_index.returnsType();
 
-            this.returns = new TS.LValueOfType(arrayType.elementsClass.declaresType());
+		this.errorIfNot(arrayInstance instanceof Lang.TypeSystem.ArrayType, 'Expected array', this.log_array);
+		if (!this.cs) return false;
 
-            return true;
-        }
+		var arrayType = (<Lang.TypeSystem.ArrayType>arrayInstance).prototypeType;
 
-        *execute(environment: Memory.Environment): IterableIterator<Operation> {
-            yield* this.log_index.run(environment);
-            yield* this.log_array.run(environment);
+		this.returns = new Lang.TypeSystem.LValue(arrayType.elementsClass.declaresType());
 
-            var tempMemoryField = environment.popTempValue();
-            var index: number = (<TS.BaseClassObject> environment.popTempValue().getValue()).rawValue;
+		return true;
+	}
 
-            while (tempMemoryField.getValue() instanceof TS.Reference)
-                tempMemoryField = (<TS.Reference> tempMemoryField.getValue()).reference;
-            var leftObject = tempMemoryField.getValue();
+	*execute(environment: Lang.Environment.Environment): IterableIterator<Lang.Flow.Operation> {
+		yield* this.log_index.run(environment);
+		yield* this.log_array.run(environment);
 
-            var object = <TS.ArrayObject> leftObject;
+		var tempMemoryField = environment.popFromTempStack();
+		var index: number = (<Lang.TypeSystem.BaseClassInstanceObj>environment.popFromTempStack().getValue()).rawValue;
 
-            var arrayField = object.getField(index);
-            environment.pushTempAlias(arrayField);
+		while (tempMemoryField.getValue() instanceof Lang.TypeSystem.ReferenceObj)
+			tempMemoryField = (<Lang.TypeSystem.ReferenceObj>tempMemoryField.getValue()).reference;
+		var leftObject = tempMemoryField.getValue();
 
-            yield Operation.tempMemory(this);
+		var object = <Lang.TypeSystem.ArrayObj>leftObject;
 
-            return;
-        }
-    }
+		var arrayField = object.getField(index);
+		environment.addOnTempStack(new Lang.TypeSystem.Alias(arrayField));
+
+		yield Lang.Flow.Operation.tempMemory(this);
+
+		return;
+	}
 }
-
-module E {
-    export class ElementAt extends Element { // Add implementation
-        getJSONName() { return 'ElementAt' }
-        c_array: C.DropField
-        c_index: C.DropField
-        constructor(
-            array: E.Element = null,
-            index: E.Element = null) {
-            super();
-            this.c_array = new C.DropField(this, array),
-            this.c_index = new C.DropField(this, index),
-            this.initialize([
-                [
-                    this.c_array,
-                    new C.Label('['),
-                    this.c_index,
-                    new C.Label(']'),
-                ],
-            ], ElementType.Value);
-        }
-        constructCode(): L.LogicElement {
-            var logic = new L.ElementAt(
-                this.c_array.constructCode(),
-                this.c_index.constructCode()
-                );
-            logic.setObserver(this);
-            return logic;
-        }
-        getCopy(): Element {
-            return new ElementAt(
-                this.c_array.getContentCopy(),
-                this.c_index.getContentCopy()).copyMetadata(this);
-        }
-    }
-} 

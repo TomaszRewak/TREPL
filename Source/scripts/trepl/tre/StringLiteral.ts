@@ -1,62 +1,28 @@
-﻿module L {
-    export class StringLiteral extends LogicElement {
-        constructor(
-            public rawData: any
-            ) { super(); }
+﻿import * as Lang from '../language'
 
-        observer: E.RawData;
+export class StringLiteral extends Lang.Logic.LogicElement {
+	constructor(
+		public rawData: any
+	) { super(); }
 
-        _compile(environment: Compiler.TypeEnvironment) {
-            var value: string = this.rawData;
+	observer: E.RawData;
 
-            this.observer.isNumber(true);
-            this.returns = new TS.RValueOfType(new TS.ClassObjectType(TS.String.typeInstance));
+	_compile(environment: Lang.Compiler.TypeEnvironment) {
+		var value: string = this.rawData;
 
-            return this.cs;
-        }
+		this.observer.isNumber(true);
+		this.returns = new Lang.TypeSystem.RValue(new Lang.TypeSystem.ClassInstanceType(Lang.TypeSystem.StringClassObj.typeInstance));
 
-        *execute(environment: Memory.Environment): IterableIterator<Operation> {
-            var rawData = <string> this.rawData;
+		return this.cs;
+	}
 
-            environment.pushTempValue(TS.String.classInstance.getObjectOfValue(rawData));
+	*execute(environment: Lang.Environment.Environment): IterableIterator<Lang.Flow.Operation> {
+		var rawData = <string>this.rawData;
 
-            yield Operation.tempMemory(this);
+		environment.addOnTempStack(Lang.TypeSystem.StringClassObj.classInstance.getObjectOfValue(rawData));
 
-            return;
-        }
-    }
-} 
+		yield Lang.Flow.Operation.tempMemory(this);
 
-module E {
-    export class StringLiteral extends Element {
-        getJSONName() { return 'StringLiteral' }
-        c_data: C.TextField;
-        constructor(value: string = 'foo') {
-            super();
-            this.c_data = new C.TextField(this, value);
-            this.initialize([
-                [new C.Label('"'), this.c_data, new C.Label('"')]
-            ], ElementType.Value);
-            this._isNumber = true;
-        }
-        constructCode(): L.LogicElement {
-            var logic = new L.StringLiteral(
-                this.c_data.getRawData()
-                );
-            logic.setObserver(this);
-            return logic;
-        }
-        getCopy(): Element {
-            return new StringLiteral(this.c_data.getRawData()).copyMetadata(this);
-        }
-        private _isNumber;
-        isNumber(num: boolean) {
-            if (num != this._isNumber) {
-                this._isNumber = num;
-
-                this.clearStyles();
-                this.setStyle(num ? ElementType.Value : ElementType.Variable);
-            }
-        }
-    }
+		return;
+	}
 }

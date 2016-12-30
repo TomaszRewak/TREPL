@@ -1,77 +1,40 @@
-﻿module L {
-    export class NewObject extends LogicElement {
-        constructor(
-            public log_type: LogicElement,
-            public log_arguments: LogicElement[]
-            ) { super(); }
+﻿import * as Lang from '../language'
 
-        _compile(environment: Compiler.TypeEnvironment): boolean {
-            this.error('This element is not supported yet');
-            if (!this.cs) return false;
+export class NewObject extends Lang.Logic.LogicElement {
+	constructor(
+		public log_type: Lang.Logic.LogicElement,
+		public log_arguments: Lang.Logic.LogicElement[]
+	) { super(); }
 
-            this.log_type.compile(environment);
-            for (var i = 0; i < this.log_arguments.length; i++)
-                this.log_arguments[i].compile(environment);
+	_compile(environment: Lang.Compiler.TypeEnvironment): boolean {
+		this.error('This element is not supported yet');
+		if (!this.cs) return false;
 
-            return this.cs;
-        }
+		this.log_type.compile(environment);
+		for (var i = 0; i < this.log_arguments.length; i++)
+			this.log_arguments[i].compile(environment);
 
-        *execute(environment: Memory.Environment): IterableIterator<Operation> {
-            yield* this.log_type.run(environment);
+		return this.cs;
+	}
 
-            var classType = <TS.Prototype> environment.popTempValue().getValue();
+	*execute(environment: Lang.Environment.Environment): IterableIterator<Lang.Flow.Operation> {
+		yield* this.log_type.run(environment);
 
-            throw "Impelement this";
-            //var values: { [name: string]: TS.Object } = {};
-            //for (var i = 0; i < classType.fields.length; i++) {
-            //    var field = classType.fields[i];
-            //    if (field.defaultValue) {
-            //        yield* field.defaultValue.value.run(environment);
-            //        values[field.name] = environment.popTempValue().getValue().getCopy();
-            //    }
-            //    else {
-            //        values[field.name] = field.paramType.getDefaultValue();
-            //    }
-            //}
-            //var object = classType.getObjectOfValue(values);
-            //environment.pushTempValue(object);
-        }
-    }
+		var classType = <Lang.TypeSystem.PrototypeObj>environment.popFromTempStack().getValue();
+
+		throw "Impelement this";
+		//var values: { [name: string]: TS.Object } = {};
+		//for (var i = 0; i < classType.fields.length; i++) {
+		//    var field = classType.fields[i];
+		//    if (field.defaultValue) {
+		//        yield* field.defaultValue.value.run(environment);
+		//        values[field.name] = environment.popTempValue().getValue().getCopy();
+		//    }
+		//    else {
+		//        values[field.name] = field.paramType.getDefaultValue();
+		//    }
+		//}
+		//var object = classType.getObjectOfValue(values);
+		//environment.pushTempValue(object);
+	}
 }
-
-module E {
-    export class NewObject extends Element {
-        getJSONName() { return 'NewObject' }
-        c_type: C.DropField
-        c_arguments: C.DropList
-        constructor(
-            typ: E.Element = null,
-            argumets: E.Element[] = []) {
-            super();
-            this.c_type = new C.DropField(this, typ),
-            this.c_arguments = new C.DropList(this, argumets)
-            this.initialize([
-                [
-                    new C.Label('val'),
-                    this.c_type,
-                    new C.Label('('),
-                    this.c_arguments,
-                    new C.Label(')'),
-                ],
-            ], ElementType.Value);
-        }
-        constructCode(): L.LogicElement {
-            var logic = new L.NewObject(
-                this.c_type.constructCode(),
-                this.c_arguments.getLogicComponents()
-                );
-            logic.setObserver(this);
-            return logic;
-        }
-        getCopy(): Element {
-            return new NewObject(
-                this.c_type.getContentCopy(),
-                this.c_arguments.getContentCopy()).copyMetadata(this);
-        }
-    }
-} 

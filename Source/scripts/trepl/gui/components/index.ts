@@ -2,3 +2,4 @@
 export { TextField } from './TextField'
 export { DropField } from './DropField'
 export { DropList } from './DropList'
+export { PenetratingTextField } from './PenetratingTextField'

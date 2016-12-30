@@ -1,196 +1,148 @@
-﻿module L {
-    var O = Operation;
-    export class ClassDefinition extends LogicElement {
-        constructor(
-            public name: string,
-            public log_extends: LogicElement,
-            public log_list: LogicElement[]
-            ) { super(); }
+﻿import * as Lang from '../language'
 
-        extendsType: TS.Type;
+import { Function } from './Function'
+import { VarDefinition } from './Function'
 
-        functionClosures: { [funName: string]: { [name: string]: TS.Type } } = {};
+export class ClassDefinition extends Lang.Logic.LogicElement {
+	constructor(
+		public name: string,
+		public log_extends: Lang.Logic.LogicElement,
+		public log_list: Lang.Logic.LogicElement[]
+	) { super(); }
 
-        _compile(environment: Compiler.TypeEnvironment) {
-            var fields: { [name: string]: TS.ClassFieldType } = {};
-            var functions: { [name: string]: TS.FunctionClassType } = {};
+	extendsType: Lang.TypeSystem.Type;
 
-            this.prototype = new TS.ClassType(fields, functions, this.name);
+	functionClosures: { [funName: string]: { [name: string]: Lang.TypeSystem.Type } } = {};
 
-            this.errorIfEmpty(this.log_extends);
-            this.cs = this.log_extends.compile(environment) && this.cs;
-            if (!this.cs) return false;
+	_compile(environment: Lang.Compiler.TypeEnvironment) {
+		var fields: { [name: string]: Lang.TypeSystem.ClassFieldType } = {};
+		var functions: { [name: string]: Lang.TypeSystem.FunctionClassType } = {};
 
-            this.extendsType = this.log_extends.returns.varType;
-            this.errorIfNot(this.extendsType instanceof TS.PrototypeType, 'You can extend only other classes', this.log_extends);
-            if (!this.cs) return false;
+		this.prototype = new Lang.TypeSystem.ClassType(fields, functions, this.name);
 
-            environment.addElement(this.name, this.prototype);
+		this.errorIfEmpty(this.log_extends);
+		this.cs = this.log_extends.compile(environment) && this.cs;
+		if (!this.cs) return false;
 
-            environment.addScope();
-            environment.addClosure();
+		this.extendsType = this.log_extends.returns.varType;
+		this.errorIfNot(this.extendsType instanceof Lang.TypeSystem.PrototypeType, 'You can extend only other classes', this.log_extends);
+		if (!this.cs) return false;
 
-            for (var i = 0; i < this.log_list.length; i++) {
-                var logElement = this.log_list[i];
+		environment.addElement(this.name, this.prototype);
 
-                if (logElement instanceof EmptyElement) {
-                    continue;
-                }
-                else if (logElement instanceof Function) {
-                    var fun = <Function> logElement;
+		environment.addScope();
+		environment.addClosure();
 
-                    environment.addScope();
-                    this.cs = fun.compileType(environment) && this.cs;
-                    environment.removeScope();
+		for (var i = 0; i < this.log_list.length; i++) {
+			var logElement = this.log_list[i];
 
-                    if (!!functions[fun.name] || !!fields[fun.name])
-                        this.error('Member of this name already exists (functions overloading is not supported yet)', logElement);
+			if (logElement instanceof Lang.Logic.EmptyElement) {
+				continue;
+			}
+			else if (logElement instanceof Function) {
+				var fun = <Function>logElement;
 
-                    if (!fun.cs) continue;
-                    
-                    functions[fun.name] = fun.functionType;
-                }
-                else if (this.log_list[i] instanceof VarDefinition) {
-                    var field = <VarDefinition> logElement;
+				environment.addScope();
+				this.cs = fun.compileType(environment) && this.cs;
+				environment.removeScope();
 
-                    environment.addScope();
-                    this.cs = field.compile(environment) && this.cs;
-                    environment.removeScope();
+				if (!!functions[fun.name] || !!fields[fun.name])
+					this.error('Member of this name already exists (functions overloading is not supported yet)', logElement);
 
-                    if (!!functions[field.name] || !!fields[field.name])
-                        this.error('Member of this name already exists (functions overloading is not supported yet)', logElement);
+				if (!fun.cs) continue;
 
-                    if (!field.cs) continue;
+				functions[fun.name] = fun.functionType;
+			}
+			else if (this.log_list[i] instanceof VarDefinition) {
+				var field = <VarDefinition>logElement;
 
-                    fields[field.name] = new TS.ClassFieldType(
-                        field.name,
-                        field.expectsType.varType);
-                }
-                else {
-                    this.error('Expected field or method declaration', logElement);
-                    continue;
-                }
-            }
+				environment.addScope();
+				this.cs = field.compile(environment) && this.cs;
+				environment.removeScope();
 
-            environment.removeClosure();
-            environment.removeScope();
+				if (!!functions[field.name] || !!fields[field.name])
+					this.error('Member of this name already exists (functions overloading is not supported yet)', logElement);
 
-            if (!this.cs) return false;
+				if (!field.cs) continue;
 
-            environment.addScope();
-            environment.addClosure();
+				fields[field.name] = new Lang.TypeSystem.ClassFieldType(
+					field.name,
+					field.expectsType.varType);
+			}
+			else {
+				this.error('Expected field or method declaration', logElement);
+				continue;
+			}
+		}
 
-            for (var i = 0; i < this.log_list.length; i++) {
-                if (this.log_list[i] instanceof Function) {
-                    var fun = <Function> this.log_list[i];
+		environment.removeClosure();
+		environment.removeScope();
 
-                    environment.addScope(); // Scope to hold this value
-                    environment.addClosure();
+		if (!this.cs) return false;
 
-                    environment.addElement('this', this.prototype.declaresType());
-                    this.cs = fun.compile(environment) && this.cs;
+		environment.addScope();
+		environment.addClosure();
 
-                    this.functionClosures[fun.name] = environment.removeClosure();
-                    environment.removeScope();
+		for (var i = 0; i < this.log_list.length; i++) {
+			if (this.log_list[i] instanceof Function) {
+				var fun = <Function>this.log_list[i];
 
-                    if (!this.cs) continue;
-                }
-            }
+				environment.addScope(); // Scope to hold this value
+				environment.addClosure();
 
-            environment.removeClosure();
-            environment.removeScope();
+				environment.addElement('this', this.prototype.declaresType());
+				this.cs = fun.compile(environment) && this.cs;
 
-            if (!this.cs) return false;
+				this.functionClosures[fun.name] = environment.removeClosure();
+				environment.removeScope();
 
-            this.returns = new TS.RValueOfType(this.prototype);
+				if (!this.cs) continue;
+			}
+		}
 
-            return this.cs;
-        }
+		environment.removeClosure();
+		environment.removeScope();
 
-        prototype: TS.ClassType;
+		if (!this.cs) return false;
 
-        *execute(environment: Memory.Environment): IterableIterator<Operation> {
-            var fields: { [name: string]: TS.ClassField } = {};
-            var functions: { [name: string]: TS.FunctionObject } = {};
+		this.returns = new Lang.TypeSystem.RValue(this.prototype);
 
-            var newClass = new TS.Class(
-                this.prototype,
-                fields,
-                functions
-                );
+		return this.cs;
+	}
 
-            environment.addValueToStack(newClass, this.name);
+	prototype: Lang.TypeSystem.ClassType;
 
-            yield Operation.memory(this);
+	*execute(environment: Lang.Environment.Environment): IterableIterator<Lang.Flow.Operation> {
+		var fields: { [name: string]: Lang.TypeSystem.ClassField } = {};
+		var functions: { [name: string]: Lang.TypeSystem.FunctionObj } = {};
 
-            for (var i = 0; i < this.log_list.length; i++) {
-                if (this.log_list[i] instanceof VarDefinition) {
-                    var field = <VarDefinition> this.log_list[i];
+		var newClass = new Lang.TypeSystem.ClassObj(
+			this.prototype,
+			fields,
+			functions
+		);
 
-                    fields[field.name] = new TS.ClassField(
-                        field,
-                        field.name
-                        );
-                }
-                if (this.log_list[i] instanceof Function) {
-                    var fun = <Function> this.log_list[i];
-                    var closure = this.functionClosures[fun.name];
+		environment.addOnStack(newClass, this.name);
 
-                    functions[fun.name] = fun.createFunctionObject(environment, closure);
-                }
-            }
+		yield Lang.Flow.Operation.memory(this);
 
-            return;
-        }
-    }
+		for (var i = 0; i < this.log_list.length; i++) {
+			if (this.log_list[i] instanceof VarDefinition) {
+				var field = <VarDefinition>this.log_list[i];
+
+				fields[field.name] = new Lang.TypeSystem.ClassField(
+					field,
+					field.name
+				);
+			}
+			if (this.log_list[i] instanceof Function) {
+				var fun = <Function>this.log_list[i];
+				var closure = this.functionClosures[fun.name];
+
+				functions[fun.name] = fun.createFunctionObject(environment, closure);
+			}
+		}
+
+		return;
+	}
 }
-
-module E {
-    export class ClassDefinition extends Element {
-        getJSONName() { return 'ClassDefinition' }
-        c_name: C.TextField
-        c_extends: C.DropField
-        c_list: C.DropList
-        constructor(
-            name = 'foo',
-            extend: E.Element = null,
-            list: E.Element[] = []) {
-            super();
-            this.c_name = new C.TextField(this, name),
-            this.c_extends = new C.DropField(this, extend),
-            this.c_list = new C.DropList(this, list)
-            this.initialize([
-                [
-                    new C.Label('class'),
-                    this.c_name,
-                    new C.Label('extends'),
-                    this.c_extends,
-                ],
-                [
-                    new C.Label('{'),
-                ],
-                [
-                    this.c_list,
-                ],
-                [
-                    new C.Label('}'),
-                ]
-            ], ElementType.Type);
-        }
-        constructCode(): L.LogicElement {
-            var logic = new L.ClassDefinition(
-                this.c_name.getRawData(),
-                this.c_extends.constructCode(),
-                this.c_list.getLogicComponents()
-                );
-            logic.setObserver(this);
-            return logic;
-        }
-        getCopy(): Element {
-            return new ClassDefinition(
-                this.c_name.getRawData(),
-                this.c_extends.getContentCopy(),
-                this.c_list.getContentCopy()).copyMetadata(this);
-        }
-    }
-} 

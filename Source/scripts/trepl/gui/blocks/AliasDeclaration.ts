@@ -1,6 +1,6 @@
 ﻿import * as Elements from '../elements'
 import * as Components from '../components'
-import * as Language from '../../language'
+import * as Lang from '../../language'
 import * as TRE from '../../tre'
 
 export class AliasDeclaration extends Elements.Element {
@@ -20,7 +20,7 @@ export class AliasDeclaration extends Elements.Element {
 			]
 		], Elements.ElementType.Variable);
 	}
-	constructCode(): Language.Logic.LogicElement {
+	constructCode(): Lang.Logic.LogicElement {
 		var logic = new TRE.AliasDeclaration(
 			this.c_name.getRawData(),
 			this.c_type.constructCode()

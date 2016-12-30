@@ -1,64 +1,35 @@
-﻿module L {
-    export class DefaultValue extends LogicElement {
-        constructor(
-            public log_type: LogicElement
-            ) { super(); }
+﻿import * as Lang from '../language'
 
-        _compile(environment: Compiler.TypeEnvironment): boolean {
-            this.errorIfEmpty(this.log_type);
-            this.cs = this.log_type.compile(environment) && this.cs;
-             if (!this.cs) return false;
+export class DefaultValue extends Lang.Logic.LogicElement {
+	constructor(
+		public log_type: Lang.Logic.LogicElement
+	) { super(); }
 
-            this.errorIfNotPrototype(this.log_type.returnsType(), this.log_type);
-            if (!this.cs) return false;
+	_compile(environment: Lang.Compiler.TypeEnvironment): boolean {
+		this.errorIfEmpty(this.log_type);
+		this.cs = this.log_type.compile(environment) && this.cs;
+		if (!this.cs) return false;
 
-            var elemesType = <TS.PrototypeType> this.log_type.returns.varType;
+		this.errorIfNotPrototype(this.log_type.returnsType(), this.log_type);
+		if (!this.cs) return false;
 
-            this.returns = new TS.RValueOfType(elemesType.declaresType());
+		var elemesType = <Lang.TypeSystem.PrototypeType>this.log_type.returns.varType;
 
-            return this.cs;
-        }
+		this.returns = new Lang.TypeSystem.RValue(elemesType.declaresType());
 
-        *execute(environment: Memory.Environment): IterableIterator<Operation> {
-            yield* this.log_type.run(environment);
+		return this.cs;
+	}
 
-            var elemType = <TS.Prototype> environment.popTempValue().getValue();
+	*execute(environment: Lang.Environment.Environment): IterableIterator<Lang.Flow.Operation> {
+		yield* this.log_type.run(environment);
 
-            var object = elemType.defaultValue();
-            yield* object.construct(environment);
+		var elemType = <Lang.TypeSystem.PrototypeObj>environment.popFromTempStack().getValue();
 
-            environment.pushTempValue(object);
+		var object = elemType.defaultValue();
+		yield* object.construct(environment);
 
-            return;
-        }
-    }
-}
+		environment.addOnTempStack(object);
 
-module E {
-    export class DefaultValue extends Element { // Add implementation
-        getJSONName() { return 'DefaultValue' }
-        c_type: C.DropField
-        constructor(
-            typ: E.Element = null) {
-            super();
-            this.c_type = new C.DropField(this, typ),
-            this.initialize([
-                [
-                    new C.Label('default value'),
-                    this.c_type,
-                ],
-            ], ElementType.Value);
-        }
-        constructCode(): L.LogicElement {
-            var logic = new L.DefaultValue(
-                this.c_type.constructCode()
-                );
-            logic.setObserver(this);
-            return logic;
-        }
-        getCopy(): Element {
-            return new DefaultValue(
-                this.c_type.getContentCopy()).copyMetadata(this);
-        }
-    }
+		return;
+	}
 }
