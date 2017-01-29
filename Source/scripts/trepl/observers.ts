@@ -1,18 +1,6 @@
 ﻿module TypeSystemObserver {
 
-    export class VoidObjectObserver implements ObjectObserver {
-        constructor(private object: TS.VoidObject) { }
-        private element: JQuery;
-        getElement(): JQuery {
-            if (!this.element) {
-                this.element = $('<div></div>');
-                this.element.addClass('objectElement');
-            }
-            return this.element;
-        }
-        updateUI() {
-        }
-    }
+    
     export class BaseClassObjectObserver implements ObjectObserver {
         constructor(private object: TS.BaseClassObject) { }
         private element: JQuery;

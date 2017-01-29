@@ -1,10 +1,11 @@
-﻿import * as Function from './Function'
-import * as MemoryFields from '../memory_fields'
+﻿import { Function } from './Function'
+import { } from '../flow'
+import { IEnvironment, IMemoryField } from '../../environment'
 
-export class Method extends Function.FunctionObj {
+export class Method<Env extends IEnvironment> extends Function<Env> {
 	constructor(
-		thisField: MemoryFields.MemoryField,
-		baseFunction: Function.FunctionObj,
+		thisField: IMemoryField,
+		baseFunction: Function<Env>,
 		alaisedThis: boolean
 	) {
 		var thisValue = alaisedThis ? null : thisField.getValue().getCopy();
@@ -12,7 +13,7 @@ export class Method extends Function.FunctionObj {
 			baseFunction.prototype,
 			baseFunction.parameters,
 			alaisedThis ?
-				function* (environment: Memory.Environment) {
+				function* (environment: Env) {
 					environment.addAliasToStack(
 						thisField,
 						'this'
@@ -21,7 +22,7 @@ export class Method extends Function.FunctionObj {
 					yield* baseFunction.behaviour(environment);
 				}
 				:
-				function* (environment: Memory.Environment) {
+				function* (environment: Env) {
 					environment.addValueToStack(
 						thisValue.getCopy(),
 						'this'

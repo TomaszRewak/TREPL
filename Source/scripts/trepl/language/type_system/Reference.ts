@@ -1,41 +1,41 @@
-﻿import * as Prototype from './Prototype'
-import * as Instance from './Instance'
-import * as Function from './Function'
+﻿import { Prototype } from './Prototype'
+import { Instance } from './Instance'
+import { Function, FunctionClass } from './Function'
 import * as BaseTypes from './BaseTypes'
-import * as Memory from '../memory'
+import { IEnvironment, IMemoryField } from '../../environment'
 import { ImplicitDeclaration } from '../flow/Declaration'
 import { rValue } from './StaticResult'
 
-export class ReferenceClassObj extends Prototype.PrototypeObj {
+export class ReferenceClass extends Prototype {
 	constructor() {
 		super({});
-		this.functions['=='] = new Function.FunctionObj(
-			new Function.FunctionClassObj(),
+		this.functions['=='] = new Function(
+			new FunctionClass(),
 			[
-				new ImplicitDeclaration('b', rValue(null), BaseTypes.IntClassObj.classInstance)
+				new ImplicitDeclaration('b', rValue(null), BaseTypes.IntClassValue.classInstance)
 			],
 			function* (environment) {
-				var a = <ReferenceObj>environment.getFromStack('this').getValue();
-				var b = <ReferenceObj>environment.getFromStack('b').getValue();
-				var result = BaseTypes.BooleanClassObj.classInstance.getObjectOfValue(a.reference == b.reference);
+				var a = <Reference>environment.getFromStack('this').getValue();
+				var b = <Reference>environment.getFromStack('b').getValue();
+				var result = BaseTypes.BooleanClassValue.classInstance.getObjectOfValue(a.reference == b.reference);
 				environment.pushTempValue(result);
 			}
 		);
-		this.functions['!='] = new Function.FunctionObj(
-			new Function.FunctionClassObj(),
+		this.functions['!='] = new Function(
+			new FunctionClass(),
 			[
-				new ImplicitDeclaration('b', rValue(null), BaseTypes.IntClassObj.classInstance)
+				new ImplicitDeclaration('b', rValue(null), BaseTypes.IntClassValue.classInstance)
 			],
 			function* (environment) {
-				var a = <ReferenceObj>environment.getFromStack('this').getValue();
-				var b = <ReferenceObj>environment.getFromStack('b').getValue();
-				var result = BaseTypes.BooleanClassObj.classInstance.getObjectOfValue(a.reference != b.reference);
+				var a = <Reference>environment.getFromStack('this').getValue();
+				var b = <Reference>environment.getFromStack('b').getValue();
+				var result = BaseTypes.BooleanClassValue.classInstance.getObjectOfValue(a.reference != b.reference);
 				environment.pushTempValue(result);
 			}
 		);
 	}
-	defaultValue(): Instance.InstanceObj {
-		return new ReferenceObj(null);
+	defaultValue(): Instance {
+		return new Reference(null);
 	}
 }
 
@@ -44,49 +44,43 @@ export class ReferenceClassType extends Prototype.PrototypeType {
 		super(referencedPrototypeType.instanceName + ' ref', {});
 		this.functions['=='] = new Function.FunctionClassType([
 			new Function.FunctionParapeterType('b', rValue(this.declaresType()), false)
-		], rValue(BaseTypes.BooleanClassObj.objectTypeInstance));
+		], rValue(BaseTypes.BooleanClassValue.objectTypeInstance));
 		this.functions['!='] = new Function.FunctionClassType([
 			new Function.FunctionParapeterType('b', rValue(this.declaresType()), false)
-		], rValue(BaseTypes.BooleanClassObj.objectTypeInstance));
+		], rValue(BaseTypes.BooleanClassValue.objectTypeInstance));
 	}
 	declaresType(): ReferenceType {
 		return new ReferenceType(this);
 	}
 }
 
-export class ReferenceObj extends Instance.InstanceObj {
-	observer: TSO.ReferenceObserver = new TSO.ReferenceObserver(this);
+export class Reference extends Instance {
 	constructor(
-		public reference: Memory.MemoryField
+		public reference: IMemoryField
 	) {
-		super(new ReferenceClassObj());
+		super(new ReferenceClass());
 
 		if (reference)
 			reference.referencedBy(this);
 	}
-	public getCopy(): ReferenceObj {
-		return new ReferenceObj(this.reference);
+	public getCopy(): Reference {
+		return new Reference(this.reference);
 	}
 }
 
-export class ReferenceType extends Instance.InstanceType {
+export class ReferenceType extends Instance {
 	constructor(
 		public prototypeType: ReferenceClassType
 	) { super(prototypeType); }
-	assignalbeTo(second: Instance.InstanceType): boolean {
+	assignalbeTo(second: Instance): boolean {
 		if (!(second instanceof ReferenceType))
 			return false;
 
 		var a = this.prototypeType.referencedPrototypeType.declaresType().assignalbeTo((<ReferenceType>second).prototypeType.referencedPrototypeType.declaresType());
-		var b = this.prototypeType.referencedPrototypeType == BaseTypes.VoidClassObj.typeInstance;
+		var b = this.prototypeType.referencedPrototypeType == BaseTypes.VoidClassValue.typeInstance;
 		return a || b;
 	}
 }
 
-export class Alias extends ReferenceObj {
-	observer: TSO.AliasObserver = new TSO.AliasObserver(this);
-
-	public dereference(): Memory.MemoryField {
-		return this.reference;
-	}
+export class Alias extends Reference {
 }

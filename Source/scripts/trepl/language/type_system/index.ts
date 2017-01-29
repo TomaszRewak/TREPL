@@ -1,5 +1,4 @@
 ﻿export * from './Array'
-export * from './Base'
 export * from './BaseTypes'
 export * from './Class'
 export * from './Function'

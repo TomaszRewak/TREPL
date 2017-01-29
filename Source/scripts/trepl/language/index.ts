@@ -1,12 +1,24 @@
-﻿import * as Logic from './logic'
-import * as Flow from './flow'
-import * as TypeSystem from './type_system'
-import * as Compiler from './compiler'
-import * as Environment from './environment'
-import * as Observers from './observers'
-import * as Memory from './memory'
-import * as DataStructures from './data_structures'
+﻿import { Environment, IMemoryField } from '../environment'
+import { ITypedEnvironment } from './environment'
 
-export {
-	Logic, Flow, TypeSystem, Compiler, Environment, Observers, Memory, DataStructures
+import { Alias } from './type_system'
+
+export class TypedEnvironment extends Environment implements ITypedEnvironment {
+
+	private dereferenceAlias(field: IMemoryField): IMemoryField {
+		var fieldValue = field.getValue();
+
+		if (fieldValue instanceof Alias)
+			return fieldValue.reference;
+		else
+			return field;
+	}
+
+	getFromStack(name: string): IMemoryField {
+		return this.dereferenceAlias(super.getFromStack(name));
+	}
+
+	popFromTempStack(): IMemoryField {
+		return this.dereferenceAlias(super.popFromTempStack());
+	}
 }

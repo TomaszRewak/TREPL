@@ -1,10 +1,10 @@
 ﻿import * as TypeSystem from '../type_system'
 import * as Observers from '../observers'
-import * as Flow from '../flow'
+import { IExecutable } from '../flow'
 import * as Environment from '../environment'
 import * as Compiler from '../compiler'
 
-export abstract class LogicElement implements Flow.Executable {
+export abstract class LogicElement<TS> implements IExecutable<TS> {
 	// Sets observer
 	protected observer: Observers.LogicElementObserver = new Observers.EmptyLogicElementObserver();
 	setObserver(observer: Observers.LogicElementObserver) {
@@ -30,7 +30,7 @@ export abstract class LogicElement implements Flow.Executable {
 	}
 	// Compilec contained block of instructions. Do not compile unreachable elements
 	// Returns value indicating if given block breaks a loop, or returns a value
-	compileBlock(environment: Compiler.TypeEnvironment, elements: LogicElement[]): Compiler.FlowState {
+	compileBlock(environment: Compiler.TypeEnvironment, elements: LogicElement<TS>[]): Compiler.FlowState {
 		var flowState = Compiler.FlowState.Normal;
 
 		var i = 0;

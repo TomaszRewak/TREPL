@@ -1,25 +1,15 @@
-﻿import * as MemoryFields from '../memory_fields'
+﻿import { MemoryField } from '../../environment'
 import * as DataStructures from '../data_structures'
-import * as Instance from './Instance'
-import * as Prototype from './Prototype'
-import * as Function from './Function'
+import { Instance, InstanceType } from './Instance'
+import { Prototype, PrototypeType } from './Prototype'
+import { Function } from './Function'
 import { IDeclaration } from '../flow/Declaration'
 import { Operation } from '../flow/Operation'
-import { Obj, Type } from './Base'
+import { Value, Type } from './Base'
 
-export class ClassField extends MemoryFields.MemoryField implements DataStructures.INamed {
-	observer = new TSO.ClassFieldObserver(this);
+export class ClassField extends MemoryField implements DataStructures.INamed {
 	constructor(public declaration: IDeclaration, public name: string) {
 		super();
-	}
-}
-
-export class ClassInstanceField extends MemoryFields.MemoryField implements DataStructures.INamed {
-	observer = new TSO.ClassFieldObserver(this);
-	constructor(value: Obj, public name: string) {
-		super();
-
-		this.setValue(value);
 	}
 }
 
@@ -30,43 +20,35 @@ export class ClassFieldType {
 	{ }
 }
 
-export class ClassObj extends Prototype.PrototypeObj {
+export class ClassInstanceField extends MemoryField implements DataStructures.INamed {
+	constructor(value: Value, public name: string) {
+		super();
+
+		this.setValue(value);
+	}
+}
+
+export class Class extends Prototype {
 	constructor(
 		public classType: ClassType,
 		public fields: { [name: string]: ClassField },
-		functions: { [name: string]: Function.FunctionObj }
+		functions: { [name: string]: Function }
 	) {
 		super(functions);
 	}
-	public getCopy(): ClassObj {
-		return new ClassObj(this.classType, this.fields, this.functions);
+	public getCopy(): Class {
+		return new Class(this.classType, this.fields, this.functions);
 	}
-	defaultValue(): Instance.InstanceObj {
-		return new ClassInstanceObj(this);
-	}
-}
-
-export class ClassType extends Prototype.PrototypeType {
-	constructor(
-		public fields: { [name: string]: ClassFieldType },
-		functions: { [name: string]: Function.FunctionClassType },
-		className: string
-	) {
-		super(className, functions);
-	}
-	hasField(name: string): boolean {
-		return this.fields[name] != null;
-	}
-	declaresType(): ClassInstanceType {
-		return new ClassInstanceType(this);
+	defaultValue(): Instance {
+		return new ClassInstanceValue(this);
 	}
 }
 
-export class ClassInstanceObj extends Instance.InstanceObj {
+export class ClassInstance extends Instance {
 	observer: TSO.ObjectObserver = new TSO.ClassObjectObserver(this);
 	fields: { [id: string]: ClassInstanceField } = {};
 	constructor(
-		public prototype: ClassObj) {
+		public prototype: ClassValue) {
 		super(prototype);
 	}
 	public *construct(environment: Memory.Environment): IterableIterator<Operation> {
@@ -88,8 +70,8 @@ export class ClassInstanceObj extends Instance.InstanceObj {
 
 		return;
 	}
-	public getCopy(): ClassInstanceObj { // TODO: copy also actual values
-		var newObject = new ClassInstanceObj(
+	public getCopy(): ClassInstance { // TODO: copy also actual values
+		var newObject = new ClassInstance(
 			this.prototype);
 
 		var fields = this.prototype.fields;
@@ -110,6 +92,23 @@ export class ClassInstanceObj extends Instance.InstanceObj {
 		return this.fields[name];
 	}
 }
+
+export class ClassType extends PrototypeType {
+	constructor(
+		public fields: { [name: string]: ClassFieldType },
+		functions: { [name: string]: Function.FunctionClassType },
+		className: string
+	) {
+		super(className, functions);
+	}
+	hasField(name: string): boolean {
+		return this.fields[name] != null;
+	}
+	declaresType(): ClassInstanceType {
+		return new ClassInstanceType(this);
+	}
+}
+
 export class ClassInstanceType extends Instance.InstanceType {
 	constructor(
 		public prototypeType: ClassType

@@ -1,36 +1,11 @@
 ﻿import { StaticResult } from './StaticResult'
-import * as Instance from './Instance'
-import * as Prototype from './Prototype'
+import { Instance, InstanceType } from './Instance'
+import { Prototype, PrototypeType } from './Prototype'
+import { Operation, IDeclaration } from '../flow'
+import { IEnvironment } from '../../environment'
 
-export class FunctionParapeterType {
-	constructor(
-		public name: string,
-		public paramType: StaticResult,
-		public hasDefaultValue: boolean)
-	{ }
-}
-
-export class FunctionClassObj extends Prototype.PrototypeObj {
-	constructor() {
-		super({});
-	}
-}
-
-export class FunctionClassType extends Prototype.PrototypeType {
-	constructor(
-		public parameters: FunctionParapeterType[],
-		public returnType: StaticResult
-	) {
-		super('(' + parameters.map(e => e.paramType.varType.getTypeName()).join(', ') + ') => ' + returnType.varType.getTypeName(), {});
-	}
-	declaresType(): FunctionType {
-		return new FunctionType(this);
-	}
-}
-
-export class FunctionObj extends Instance.InstanceObj {
-	observer = new TSO.FunctionObserver(this);
-	*call(environment: Memory.Environment, passedArguments: number): IterableIterator<L.Operation> {
+export class Function<Env extends IEnvironment> extends Instance {
+	*call(environment: Env, passedArguments: number): IterableIterator<Operation> {
 		environment.addScope('Function Call');
 
 		for (var i = 0; i < this.closure.length; i++) {
@@ -49,18 +24,44 @@ export class FunctionObj extends Instance.InstanceObj {
 		return;
 	}
 	constructor(
-		public prototype: FunctionClassObj,
-		public parameters: L.IDeclaration[],
-		public behaviour: (environment: Memory.Environment) => IterableIterator<L.Operation>,
-		public closure: L.IDeclaration[] = [])
+		public prototype: FunctionClass,
+		public parameters: IDeclaration<Env>[],
+		public behaviour: (environment: Env) => IterableIterator<Operation>,
+		public closure: IDeclaration<Env>[] = [])
 	{ super(prototype); }
-	public getCopy(): FunctionObj {
-		return new FunctionObj(this.prototype, this.parameters, this.behaviour, this.closure);
+	public getCopy(): Function<Env> {
+		return new Function<Env>(this.prototype, this.parameters, this.behaviour, this.closure);
 	}
 }
 
-export class FunctionType extends Instance.InstanceType {
+export class FunctionClass extends Prototype {
+	constructor() {
+		super({});
+	}
+}
+
+export class FunctionParapeterType {
+	constructor(
+		public name: string,
+		public paramType: StaticResult,
+		public hasDefaultValue: boolean)
+	{ }
+}
+
+export class FunctionType extends InstanceType {
 	constructor(
 		public prototypeType: FunctionClassType
 	) { super(prototypeType); }
+}
+
+export class FunctionClassType extends PrototypeType {
+	constructor(
+		public parameters: FunctionParapeterType[],
+		public returnType: StaticResult
+	) {
+		super('(' + parameters.map(e => e.paramType.varType.getTypeName()).join(', ') + ') => ' + returnType.varType.getTypeName(), {});
+	}
+	declaresType(): FunctionType {
+		return new FunctionType(this);
+	}
 }

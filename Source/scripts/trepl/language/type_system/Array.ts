@@ -1,25 +1,70 @@
-﻿import { PrototypeObj, PrototypeType } from './Prototype'
-import { InstanceObj, InstanceType } from './Instance'
-import * as MemoryFields from '../memory_fields'
-import { Obj, Type } from './Base'
+﻿import { MemoryField, Environment } from '../../environment'
+import { Observable } from '../../observer'
+import { Operation } from '../flow'
+import { Prototype, PrototypeType } from './Prototype'
+import { Instance, InstanceType } from './Instance'
+import { Value, Type } from './Base'
 
-export class ArrayField extends MemoryFields.MemoryField {
-	observer = new TSO.ArrayFieldObserver(this);
-	constructor(value: Obj, public index: number) {
+export class Array extends Instance {
+	values: ArrayField[];
+	constructor(
+		public prototype: ArrayClass
+	) {
+		super(prototype);
+		this.values = [];
+		for (var i = 0; i < prototype.length; i++) {
+			var memoryField = new ArrayField(prototype.elementsClass.defaultValue(), i);
+			this.values[i] = memoryField;
+		}
+	}
+	public getField(index: number): MemoryField {
+		return this.values[index];
+	}
+	public getCopy(): Array { // TODO: copy also actual values
+		var newObject = new Array(this.prototype);
+
+		for (var i = 0; i < this.prototype.length; i++) {
+			newObject.getField(i).setValue(this.values[i].getValue().getCopy());
+		}
+
+		return newObject;
+	}
+	public *construct(environment: Environment): IterableIterator<Operation> {
+		for (var i = 0; i < this.prototype.length; i++)
+			yield* (<InstanceValue>this.values[i].getValue()).construct(environment);
+
+		return;
+	}
+}
+
+export class ArrayField extends MemoryField {
+	constructor(value: Value, public index: number) {
 		super();
 		this.setValue(value);
 	}
 }
 
-export class ArrayClassObj extends PrototypeObj {
+export class ArrayClass extends Prototype {
 	constructor(
-		public elementsClass: PrototypeObj,
+		public elementsClass: Prototype,
 		public length: number
 	) {
 		super({});
 	}
-	defaultValue(): InstanceObj {
+	defaultValue(): InstanceValue {
 		return new ArrayObj(this);
+	}
+}
+
+export class ArrayType extends InstanceType {
+	constructor(
+		public prototypeType: ArrayClassType
+	) { super(prototypeType); }
+	assignalbeTo(second: Type): boolean {
+		if (!(second instanceof ArrayType))
+			return false;
+
+		return this.prototypeType.elementsClass.declaresType().assignalbeTo((<ArrayType>second).prototypeType.elementsClass.declaresType());
 	}
 }
 
@@ -43,50 +88,5 @@ export class ArrayOfLengthClassType extends ArrayClassType {
 	}
 	declaresType(): ArrayType {
 		return new ArrayType(this);
-	}
-}
-
-export class ArrayObj extends InstanceObj {
-	observer: TSO.ArrayObjectObserver = new TSO.ArrayObjectObserver(this);
-	values: ArrayField[];
-	constructor(
-		public prototype: ArrayClassObj
-	) {
-		super(prototype);
-		this.values = [];
-		for (var i = 0; i < prototype.length; i++) {
-			var memoryField = new ArrayField(prototype.elementsClass.defaultValue(), i);
-			this.values[i] = memoryField;
-		}
-	}
-	public getField(index: number): MemoryFields.MemoryField {
-		return this.values[index];
-	}
-	public getCopy(): ArrayObj { // TODO: copy also actual values
-		var newObject = new ArrayObj(this.prototype);
-
-		for (var i = 0; i < this.prototype.length; i++) {
-			newObject.getField(i).setValue(this.values[i].getValue().getCopy());
-		}
-
-		return newObject;
-	}
-	public *construct(environment: Memory.Environment): IterableIterator<L.Operation> {
-		for (var i = 0; i < this.prototype.length; i++)
-			yield* (<InstanceObj>this.values[i].getValue()).construct(environment);
-
-		return;
-	}
-}
-
-export class ArrayType extends InstanceType {
-	constructor(
-		public prototypeType: ArrayClassType
-	) { super(prototypeType); }
-	assignalbeTo(second: Type): boolean {
-		if (!(second instanceof ArrayType))
-			return false;
-
-		return this.prototypeType.elementsClass.declaresType().assignalbeTo((<ArrayType>second).prototypeType.elementsClass.declaresType());
 	}
 }

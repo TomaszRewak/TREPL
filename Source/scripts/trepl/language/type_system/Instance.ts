@@ -1,26 +1,23 @@
-﻿import * as Base from './Base'
-import * as Prototype from './Prototype'
-import * as MemoryFields from '../memory_fields'
-import * as Function from './Function'
-import * as Method from './Method'
+﻿import { ITypedEnvironment, Operation, IPrototype, IPrototypeType, IInstance, IInstanceType, IFunction, IValue } from '../environment'
+import { Value, Type } from './Base'
+import { Function } from './Function'
+import { Method } from './Method'
 
-export class InstanceObj extends Base.Obj {
-	constructor(public prototype: Prototype.PrototypeObj) {
+export abstract class Instance<Env extends ITypedEnvironment> extends Value implements IInstance<Env> {
+	constructor(public prototype: IPrototype<Env>) {
 		super();
 	}
 	public hasMethod(name: string): boolean {
-		return this.prototype.functions[name] != null;
+		return this.prototype.hasMethod(name);
 	}
-	public getMethod(thisField: MemoryFields.MemoryField, name: string, alaisedThis: boolean): Function.FunctionObj {
-		return new Method.Method(thisField, this.prototype.functions[name], alaisedThis);
+	public getMethod(name: string): IFunction<Env> {
+		return this.prototype.getMethod(name);
 	}
-	public getCopy(): Base.Obj { return this.prototype.defaultValue(); }
-	public *construct(environment: Memory.Environment): IterableIterator<L.Operation> {
-		return;
-	}
+	public abstract getCopy(): Value;
+	public abstract construct(environment: Env): IterableIterator<Operation>;
 }
-export class InstanceType extends Base.Type {
-	constructor(public prototypeType: Prototype.PrototypeType) {
+export class InstanceType extends Type {
+	constructor(public prototypeType: IPrototypeType) {
 		super();
 	}
 	hasMethod(name: string): boolean {

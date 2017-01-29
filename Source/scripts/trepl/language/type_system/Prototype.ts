@@ -1,33 +1,41 @@
-﻿import * as Base from './Base'
-import * as Instance from './Instance'
-import * as Function from './Function'
+﻿import { IValue } from '../../environment'
+import { ITypedEnvironment, IPrototype, IPrototypeType, IInstance, IFunction } from '../environment'
+import { Value, Type } from './Base'
+import { Instance, InstanceType } from './Instance'
+import { Function, FunctionClassType } from './Function'
 
-export class PrototypeObj extends Base.Obj {
-	observer = new PrototypeObserver(this);
+export abstract class Prototype<Env extends ITypedEnvironment> extends Value implements IPrototype<Env> {
 	constructor(
-		public functions: { [name: string]: Function.FunctionObj }
+		public functions: { [name: string]: IFunction<Env> }
 	) {
 		super();
 	}
-	public getCopy(): PrototypeObj {
-		return new PrototypeObj(this.functions);
+	public getCopy(): IValue {
+		return new Prototype(this.functions);
 	}
-	defaultValue(): Instance.InstanceObj {
-		return new Instance.InstanceObj(this);
+	defaultValue(): IInstance<Env> {
+		return new Instance<Env>(this);
+	}
+	hasMethod(name: string): boolean {
+		return this.functions[name] != null;
+	}
+	getMethod(name: string): IFunction<Env> {
+		return this.functions[name];
 	}
 }
-export class PrototypeType extends Base.Type {
+
+export class PrototypeType extends Type implements IPrototypeType {
 	constructor(
 		public instanceName: string,
-		public functions: { [name: string]: Function.FunctionClassType }
+		public functions: { [name: string]: FunctionClassType }
 	) {
 		super();
 	}
 	hasMethod(name: string): boolean {
 		return this.functions[name] != null;
 	}
-	declaresType(): Instance.InstanceType {
-		return new Instance.InstanceType(this);
+	declaresType(): InstanceType {
+		return new InstanceType(this);
 	}
 	getTypeName(): string {
 		return 'type ' + this.instanceName;
