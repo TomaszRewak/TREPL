@@ -1,10 +1,10 @@
-﻿import { IStack } from './IDataStructures'
+﻿import { IStack } from '../IDataStructures'
 
-class StackNode<T> {
-	value: T;
-	tail: StackNode<T> = null;
+class StackNode<V> {
+	value: V;
+	tail: StackNode<V> = null;
 
-	constructor(value: T, tail: StackNode<T>) {
+	constructor(value: V, tail: StackNode<V>) {
 		this.value = value;
 		this.tail = tail;
 	}
@@ -15,23 +15,39 @@ class StackNode<T> {
 		else
 			return new StackNode<Y>(fun(node.value), this.map(node.tail, fun));
 	}
+
+	static iterate<X>(node: StackNode<X>, fun: (X) => void): void {
+		if (node) {
+			fun(node.value);
+			this.iterate(node, fun);
+		}
+	}
+
+	static iterateBack<X>(node: StackNode<X>, fun: (X) => void): void {
+		if (node) {
+			this.iterate(node, fun);
+			fun(node.value);
+		}
+	}
 }
 
-export class Stack<T> implements IStack<T> {
-	private _stackTop: StackNode<T> = null;
+export class Stack<V> implements IStack<V> {
+	private _stackTop: StackNode<V> = null;
 	private _size = 0;
 
-	add(value: T): void {
+	add(value: V): void {
 		this._stackTop = new StackNode(value, this._stackTop);
 		this._size++;
 	}
 
-	pop(): void {
+	pop(): V {
+		let top = this.top();
 		this._stackTop = this._stackTop.tail;
 		this._size--;
+		return top;
 	}
 
-	top(): T {
+	top(): V {
 		return this._stackTop.value;
 	}
 
@@ -39,7 +55,7 @@ export class Stack<T> implements IStack<T> {
 		return this._size;
 	}
 
-	attach(from: Stack<T>): void {
+	attach(from: Stack<V>): void {
 		if (!from._stackTop)
 			return;
 
@@ -56,11 +72,19 @@ export class Stack<T> implements IStack<T> {
 		from._stackTop = null;
 	}
 
-	map<X>(fun: (value: T) => X): IStack<X> {
+	map<X>(fun: (value: V) => X): IStack<X> {
 		let newStack = new Stack<X>();
 		newStack._stackTop = StackNode.map(this._stackTop, fun);
 		newStack._size = this._size;
 
 		return newStack;
+	}
+
+	iterate(fun: (value: V) => void): void {
+		StackNode.iterate(this._stackTop, fun);
+	}
+
+	iterateBack(fun: (value: V) => void): void {
+		StackNode.iterateBack(this._stackTop, fun);
 	}
 }

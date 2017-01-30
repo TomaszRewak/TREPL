@@ -1,9 +1,9 @@
-﻿import { IStack, IScopedStack, IStackDictionary, IScopedStackDictionary } from './IDataStructures'
+﻿import { IStack, IScopedStack, IStackDictionary, IScopedStackDictionary } from '../IDataStructures'
 import { Stack } from './Stack'
 import { ScopedStack } from './ScopedStack'
 import { StackDictionary } from './StackDictionary'
 
-export class StackMap<V> implements IScopedStackDictionary<V> {
+export class ScopedStackDictionary<V> implements IScopedStackDictionary<V> {
 	private dictionary: IStackDictionary<V> = new StackDictionary<V>();
 	private scopes: IScopedStack<string> = new ScopedStack<string>();
 

@@ -4,6 +4,7 @@ import { ITypedEnvironment } from './environment'
 import { Alias } from './type_system'
 
 export class TypedEnvironment extends Environment implements ITypedEnvironment {
+	public flowState: FlowState = FlowState.NormalFlow;
 
 	private dereferenceAlias(field: IMemoryField): IMemoryField {
 		var fieldValue = field.getValue();

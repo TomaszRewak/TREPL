@@ -1,4 +1,4 @@
-import { IStack, IStackDictionary } from './IDataStructures'
+import { IStack, IStackDictionary } from '../IDataStructures'
 import { Stack } from './Stack'
 
 export class StackDictionary<V> implements IStackDictionary<V> {
@@ -11,8 +11,10 @@ export class StackDictionary<V> implements IStackDictionary<V> {
 		this.map[name].add(value);
 	}
     
-	pop(name: string): void {
+	pop(name: string): V {
+		let top = this.top(name);
 		this.map[name].pop();
+		return top;
 	}
 
 	top(name: string): V {
